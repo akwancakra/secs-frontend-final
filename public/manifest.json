@@ -2,7 +2,7 @@
     "short_name": "Logo Aplis",
     "name": "Aplis Main Logo",
     "icons": [{
-        "src": "./assets/img/aplis-darken.png",
+        "src": "/src/assets/images/aplis-darken.png",
         "sizes": "100x100",
         "type": "image/png"
     }],
