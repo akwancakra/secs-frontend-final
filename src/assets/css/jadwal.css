@@ -1,0 +1,136 @@
+.jadwal-card {
+    border-radius: 15px;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    -ms-border-radius: 15px;
+    -o-border-radius: 15px;
+}
+
+.jadwal-card .head {
+    background-size: cover;
+    background-position: center;
+    height: 200px;
+    max-height: 250px;
+    border-radius: 15px 15px 0 0;
+    /* background: var(--purple-main); */
+    -webkit-border-radius: 15px 15px 0 0;
+    -moz-border-radius: 15px 15px 0 0;
+    -ms-border-radius: 15px 15px 0 0;
+    -o-border-radius: 15px 15px 0 0;
+}
+
+.jadwal-card .over-head {
+    background: var(--white);
+    height: 50px;
+    margin-top: -20px;
+    border-radius: 15px 15px 0 0;
+    -webkit-border-radius: 15px 15px 0 0;
+    -moz-border-radius: 15px 15px 0 0;
+    -ms-border-radius: 15px 15px 0 0;
+    -o-border-radius: 15px 15px 0 0;
+}
+
+.jadwal-card .content {
+    margin-top: -30px;
+}
+
+.jadwal-card.jadwal-change {
+    max-width: 500px;
+}
+
+.jadwal-card-detail {
+    border-radius: 15px;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    -ms-border-radius: 15px;
+    -o-border-radius: 15px;
+}
+
+.jadwal-card-detail .head {
+    background-size: cover;
+    background-position: center;
+    height: 300px;
+    max-height: 350px;
+    border-radius: 15px 15px 0 0;
+    -webkit-border-radius: 15px 15px 0 0;
+    -moz-border-radius: 15px 15px 0 0;
+    -ms-border-radius: 15px 15px 0 0;
+    -o-border-radius: 15px 15px 0 0;
+}
+
+.jadwal-card-detail .over-head {
+    background: var(--white);
+    height: 30px;
+    margin-top: -20px;
+    border-radius: 15px 15px 0 0;
+    -webkit-border-radius: 15px 15px 0 0;
+    -moz-border-radius: 15px 15px 0 0;
+    -ms-border-radius: 15px 15px 0 0;
+    -o-border-radius: 15px 15px 0 0;
+}
+
+.jadwal-card-detail .img-profil img {
+    height: 100px;
+    width: 100px;
+    object-fit: fill;
+    background-position: center;
+    border-radius: 15px;
+    border: 1px solid rgb(145, 145, 145);
+    background: var(--white);
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    -ms-border-radius: 15px;
+    -o-border-radius: 15px;
+}
+
+.jadwal-card-detail .content {
+    margin-top: -30px;
+}
+
+.mahasiswa-wrapper .head {
+    background: var(--purple-main);
+    font-size: 20px;
+    border-radius: 15px 15px 0px 0px;
+    width: fit-content;
+}
+
+.mahasiswa-wrapper .content {
+    border-radius: 0px 15px 15px 15px;
+}
+
+.jadwal-card.jadwal-change {
+    max-width: 350px;
+}
+
+
+/* STYLING DAFTAR JADWAL */
+
+.daftar-input .select2 {
+    min-width: 150px;
+    width: 150px;
+    max-width: 150px;
+}
+
+@media only screen and (min-width: 768px) {
+    .card-form {
+        min-width: 400px;
+    }
+}
+
+@media only screen and (max-width: 768px) {
+    .jadwal-card.jadwal-change {
+        max-width: none;
+    }
+    .card-form {
+        min-width: none!important;
+    }
+    .daftar-input input[type="date"] {
+        width: 100%;
+        max-width: none!important;
+    }
+    .daftar-input .select2 {
+        margin-bottom: 10px;
+        width: 100%;
+        max-width: none;
+    }
+}
