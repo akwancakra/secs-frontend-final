@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { useSelector, useDispatch } from 'react-redux'
 
 import { CSidebar, CSidebarBrand, CSidebarNav, CSidebarToggler } from '@coreui/react'
@@ -11,12 +11,13 @@ import SimpleBar from 'simplebar-react'
 import 'simplebar/dist/simplebar.min.css'
 
 // sidebar nav config
-import navigation from '../_nav'
+import * as Navigation from '../_nav/index'
 
 const AppSidebar = () => {
   const dispatch = useDispatch()
   const unfoldable = useSelector((state) => state.sidebarUnfoldable)
   const sidebarShow = useSelector((state) => state.sidebarShow)
+  const auth = useSelector((state) => state.auth)
 
   return (
     <CSidebar
@@ -32,7 +33,9 @@ const AppSidebar = () => {
       </CSidebarBrand>
       <CSidebarNav>
         <SimpleBar>
-          <AppSidebarNav items={navigation} />
+          {auth.account.role === 'admin' && <AppSidebarNav items={Navigation._navAdmin} />}
+          {auth.account.role === 'guru' && <AppSidebarNav items={Navigation._navGuru} />}
+          {auth.account.role === 'siswa' && <AppSidebarNav items={Navigation._navSiswa} />}
         </SimpleBar>
       </CSidebarNav>
       <CSidebarToggler

@@ -3,8 +3,13 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import defaultBanner from 'src/assets/images/banner-default.jpg'
 import swal from 'sweetalert'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const JadwalDetail = ({ jadwal, auth }) => {
+  AOS.init()
+  AOS.refresh()
+
   const handleDaftar = async () => {
     console.log('anda terdaftarkan')
   }
@@ -26,7 +31,12 @@ const JadwalDetail = ({ jadwal, auth }) => {
   }
 
   return (
-    <div className="jadwal-card-detail preview-wrapper my-3 bg-white shadow">
+    <div
+      className="jadwal-card-detail preview-wrapper my-3 bg-white shadow"
+      data-aos="fade-up"
+      data-aos-easing="ease-in-sine"
+      data-aos-duration="400"
+    >
       <div
         className="head px-3 d-flex align-items-center justify-content-end"
         style={{ backgroundImage: `url(${defaultBanner})` }}
@@ -48,7 +58,7 @@ const JadwalDetail = ({ jadwal, auth }) => {
             </button>
           </>
         )}
-        {auth == 'siswa' && (
+        {auth === 'siswa' && (
           <>
             <button
               type="button"

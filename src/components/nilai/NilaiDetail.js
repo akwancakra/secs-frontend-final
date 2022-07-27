@@ -1,8 +1,13 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
 import swal from 'sweetalert'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const NilaiDetail = ({ nilai, auth }) => {
+  AOS.init()
+  AOS.refresh()
+
   const swalDisplay = async (id) => {
     swal({
       title: 'Apakah anda yakin?',
@@ -20,7 +25,12 @@ const NilaiDetail = ({ nilai, auth }) => {
   }
 
   return (
-    <div className="jadwal-card-detail preview-wrapper my-3 bg-white">
+    <div
+      className="jadwal-card-detail preview-wrapper my-3 bg-white"
+      data-aos="fade-up"
+      data-aos-easing="ease-in-sine"
+      data-aos-duration="500"
+    >
       <div
         className="head px-3 d-flex align-items-center justify-content-end"
         style={{ backgroundColor: 'var(--purple-main)', height: '150px' }}

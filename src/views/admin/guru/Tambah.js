@@ -8,6 +8,8 @@ import { useDropzone } from 'react-dropzone'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { BannerMedium } from 'src/components'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const Tambah = () => {
   const [msg, setMsg] = useState('')
@@ -15,7 +17,10 @@ const Tambah = () => {
 
   useEffect(() => {
     document.title = 'Tambah Guru | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
+
   const banner = { title: 'Tambah Guru', text: '' }
   const options = [
     { value: 1, label: 'Matematika' },
@@ -154,13 +159,24 @@ const Tambah = () => {
       <BannerMedium data={banner} />
 
       <div className="my-2">
-        <Link to="/guru/main" className="btn btn-soft-purple rounded-15 fw-bold">
+        <Link
+          to="/guru/main"
+          className="btn btn-soft-purple rounded-15 fw-bold"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="300"
+        >
           Kembali
         </Link>
       </div>
 
       <div className="d-md-flex justify-content-around my-3">
-        <div className="input-wrapper my-3 pe-md-2">
+        <div
+          className="input-wrapper my-3 pe-md-2"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="400"
+        >
           <div className="d-flex align-items-center mb-3">
             <span className="icon-bx rounded-15 text-white p-2 me-2 bg-purple">
               <i
@@ -348,7 +364,12 @@ const Tambah = () => {
           </CForm>
         </div>
 
-        <div className="jadwal-card jadwal-change preview-wrapper py-2">
+        <div
+          className="jadwal-card jadwal-change preview-wrapper py-2"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="700"
+        >
           <div
             className="preview shadow bg-white rounded-15"
             style={{ width: '100%', maxWidth: '100vw' }}
@@ -361,7 +382,7 @@ const Tambah = () => {
               }}
             ></div>
             <div className="over-head"></div>
-            <div className="content px-3 row">
+            <div className="contents px-3 row">
               <div className="col-12">
                 <div className="d-flex align-items-center">
                   <i className="bx bx-chalkboard me-1"></i>

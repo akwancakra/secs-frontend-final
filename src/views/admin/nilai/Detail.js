@@ -1,14 +1,18 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { BannerMedium, NilaiDetail } from 'src/components'
-import swal from 'sweetalert'
+import { useSelector } from 'react-redux'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const Detail = () => {
+  const auth = useSelector((state) => state.auth)
   useEffect(() => {
     document.title = 'Detil Nilai | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
 
-  const auth = 'admin'
   const banner = { title: 'Detil Nilai', text: 'Berikut ini adalah detil nilai.' }
   const nilai = {
     id: 1,
@@ -30,12 +34,15 @@ const Detail = () => {
           to="/nilai/main"
           className="btn btn-soft-purple rounded-15 fw-bold d-flex align-items-center mt-3"
           style={{ width: 'fit-content' }}
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="300"
         >
           <i className="bx bxs-chevron-left"></i> Kembali
         </Link>
       </div>
       <div className="mb-4 mt-1">
-        <NilaiDetail nilai={nilai} auth={auth} />
+        <NilaiDetail nilai={nilai} auth={auth.account.role} />
       </div>
     </div>
   )

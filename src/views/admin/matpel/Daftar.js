@@ -16,10 +16,14 @@ import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { BannerMedium } from 'src/components'
 import swal from 'sweetalert'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const Daftar = () => {
   useEffect(() => {
     document.title = 'Daftar Mata Pelajaran | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
 
   const banner = {
@@ -51,7 +55,12 @@ const Daftar = () => {
     <div>
       <BannerMedium data={banner} />
 
-      <div className="search mt-2">
+      <div
+        className="search mt-2"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="300"
+      >
         <CForm className="position-relative d-flex justify-content-center">
           <div className="input-group mb-3">
             <CButton color="primary" className="input-group-text btn-search">
@@ -68,12 +77,23 @@ const Daftar = () => {
       </div>
 
       <div className="d-flex mb-3">
-        <Link to="/ad/matpel/tambah" className="btn btn-purple rounded-15">
+        <Link
+          to="/ad/matpel/tambah"
+          className="btn btn-purple rounded-15"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="300"
+        >
           Tambah Mata Pelajaran
         </Link>
       </div>
 
-      <div className="tabel-custom-wrapper">
+      <div
+        className="tabel-custom-wrapper"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="500"
+      >
         <CTable hover borderless className="bg-white rounded-15">
           <CTableHead>
             <CTableRow>

@@ -3,6 +3,8 @@ import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import Select from 'react-select'
 import { BannerMedium, JadwalCard } from 'src/components'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const Daftar = () => {
   const [tanggal, setTanggal] = useState('')
@@ -13,6 +15,8 @@ const Daftar = () => {
 
   useEffect(() => {
     document.title = 'Daftar Jadwal | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
 
   const banner = { title: 'Daftar Jadwal', text: 'Berikut ini adalah daftar jadwal yang ada.' }
@@ -65,7 +69,12 @@ const Daftar = () => {
       <BannerMedium data={banner} />
 
       <CForm onSubmit={handleSearch}>
-        <div className="position-relative">
+        <div
+          className="position-relative"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="300"
+        >
           <div className="search mt-2">
             <div className="input-group mb-3">
               <CButton

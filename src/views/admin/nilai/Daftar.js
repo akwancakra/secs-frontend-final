@@ -13,14 +13,27 @@ import {
   CTableRow,
 } from '@coreui/react'
 import React, { useEffect } from 'react'
+// LINK
 import { Link } from 'react-router-dom'
+// COMPOENNTS
 import { BannerMedium } from 'src/components'
+// ALERT
 import swal from 'sweetalert'
-import { CSVLink, CSVDownload } from 'react-csv'
+// STATE MANAGEMENT
+import { useSelector } from 'react-redux'
+// REPORT
+import { CSVLink } from 'react-csv'
+// AOX
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const Daftar = () => {
+  const auth = useSelector((state) => state.auth)
+
   useEffect(() => {
     document.title = 'Daftar Nilai | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
 
   const banner = { title: 'Daftar Nilai', text: 'Berikut ini adalah daftar nilai yang ada.' }
@@ -29,8 +42,6 @@ const Daftar = () => {
     { id: 2, nama: 'Dandy Alyahmin', matpel: 'MTK', nilai: 87 },
     { id: 3, nama: 'Reza Mohammad', matpel: 'IPS', nilai: 65 },
   ]
-
-  const auth = 'admin'
 
   const swalDisplay = async (id) => {
     swal({
@@ -49,22 +60,27 @@ const Daftar = () => {
   }
 
   const headers = [
-    { label: 'First Name', key: 'firstname' },
-    { label: 'Last Name', key: 'lastname' },
-    { label: 'Email', key: 'email' },
+    { label: 'Nama', key: 'nama' },
+    { label: 'Mata Pelajaran', key: 'matpel' },
+    { label: 'Nilai', key: 'nilai' },
   ]
 
   const data = [
-    { firstname: 'Ahmed', lastname: 'Tomi', email: 'ah@smthing.co.com' },
-    { firstname: 'Raed', lastname: 'Labes', email: 'rl@smthing.co.com' },
-    { firstname: 'Yezzi', lastname: 'Min l3b', email: 'ymin@cocococo.com' },
+    { nama: 'Ahmed Jayadi', matpel: 'Matematika', nilai: '89' },
+    { nama: 'Akwan Cakra Tajimalela', matpel: 'Matematika', nilai: '90' },
+    { nama: 'Dandy Alyahmin', matpel: 'Sastra Arab', nilai: '92' },
   ]
 
   return (
     <div>
       <BannerMedium data={banner} />
 
-      <div className="search mt-2">
+      <div
+        className="search mt-2"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="300"
+      >
         <CForm className="position-relative d-flex justify-content-center">
           <div className="input-group mb-3">
             <CButton color="primary" className="input-group-text btn-search">
@@ -80,24 +96,34 @@ const Daftar = () => {
         </CForm>
       </div>
 
-      <div className="d-flex mb-3">
+      <div
+        className="d-flex mb-3"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="300"
+      >
         <Link to="/nilai/tambah" className="btn btn-purple rounded-15 me-2">
           Tambah Nilai
         </Link>
         <CSVLink
           data={data}
           headers={headers}
-          className="btn btn-success rounded-15 text-white"
-          filename={'my-file.csv'}
+          filename={'Daftar-Nilai.csv'}
+          className="btn btn-success rounded-15"
           onClick={() => {
-            swal('Horeee!', 'Data nilai berhasil diunduh!', 'success')
+            swal('Horeee!', 'Daftar nilai berhasil diunduh!', 'success')
           }}
         >
-          Download Excel
+          Unduh daftar nilai
         </CSVLink>
       </div>
 
-      <div className="tabel-custom-wrapper">
+      <div
+        className="tabel-custom-wrapper"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="500"
+      >
         <CTable hover borderless className="bg-white rounded-15">
           <CTableHead>
             <CTableRow>
@@ -105,14 +131,14 @@ const Daftar = () => {
                 #
               </CTableHeaderCell>
               <CTableHeaderCell scope="col" className="fw-bold">
-                {auth == 'admin' && 'Nama'}
-                {auth == 'guru' && 'Nama'}
-                {auth == 'siswa' && 'Matpel'}
+                {auth.account.role === 'admin' && 'Nama'}
+                {auth.account.role === 'guru' && 'Nama'}
+                {auth.account.role === 'siswa' && 'Matpel'}
               </CTableHeaderCell>
               <CTableHeaderCell scope="col" className="fw-bold">
-                {auth == 'admin' && 'Matpel'}
-                {auth == 'guru' && 'Tanggal'}
-                {auth == 'siswa' && 'Pengajar'}
+                {auth.account.role === 'admin' && 'Matpel'}
+                {auth.account.role === 'guru' && 'Tanggal'}
+                {auth.account.role === 'siswa' && 'Pengajar'}
               </CTableHeaderCell>
               <CTableHeaderCell scope="col" className="fw-bold">
                 Nilai
@@ -136,7 +162,7 @@ const Daftar = () => {
                     <Link to={`/nilai/${nilai.id}`} className="btn btn-soft-purple rounded-15 me-2">
                       Detil
                     </Link>
-                    {auth == 'admin' && (
+                    {auth.account.role === 'admin' && (
                       <button
                         type="button"
                         className="btn btn-danger rounded-15"

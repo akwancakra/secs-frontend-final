@@ -5,6 +5,8 @@ import { Link } from 'react-router-dom'
 import Select from 'react-select'
 import { BannerMedium } from 'src/components'
 import * as Yup from 'yup'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const Tambah = () => {
   const [isLoading, setIsLoading] = useState(false)
@@ -12,6 +14,8 @@ const Tambah = () => {
 
   useEffect(() => {
     document.title = 'Tambah Nilai | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
 
   const banner = { title: 'Tambah Nilai', text: '' }
@@ -51,14 +55,24 @@ const Tambah = () => {
     <div>
       <BannerMedium data={banner} />
 
-      <div className="my-2">
+      <div
+        className="my-2"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="300"
+      >
         <Link to="/nilai/main" className="btn btn-soft-purple rounded-15 fw-bold">
           Kembali
         </Link>
       </div>
 
       <div className="d-md-flex justify-content-around my-3">
-        <div className="input-wrapper my-3 pe-md-2">
+        <div
+          className="input-wrapper my-3 pe-md-2"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="500"
+        >
           <div className="d-flex align-items-center mb-3">
             <span className="icon-bx rounded-15 text-white p-2 me-2 bg-purple">
               <i
@@ -134,7 +148,12 @@ const Tambah = () => {
           </CForm>
         </div>
 
-        <div className="jadwal-card jadwal-change preview-wrapper py-2">
+        <div
+          className="jadwal-card jadwal-change preview-wrapper py-2"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="600"
+        >
           <div
             className="preview shadow bg-white rounded-15"
             style={{ width: '100%', maxWidth: '100vw' }}
@@ -144,7 +163,7 @@ const Tambah = () => {
               style={{ backgroundColor: 'var(--purple-main)', height: '100px' }}
             ></div>
             <div className="over-head"></div>
-            <div className="content px-3 row">
+            <div className="contents px-3 row">
               <div className="col-12">
                 <div className="d-flex align-items-center">
                   <i className="bx bx-calendar me-1"></i>

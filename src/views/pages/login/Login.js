@@ -1,17 +1,26 @@
-import { CAlert, CFormCheck } from '@coreui/react'
+import { CAlert, CForm, CFormCheck } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../../../assets/css/login.css'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
+import { useSelector, useDispatch } from 'react-redux'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
+import { toast } from 'react-toastify'
 
 const Login = () => {
+  const [isLoading, setIsLoading] = useState(false)
   const [msg, setMsg] = useState('')
+  const dispatch = useDispatch()
+  const auth = useSelector((state) => state.auth)
 
   const navigate = useNavigate()
 
   useEffect(() => {
     document.title = 'Masuk | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
 
   const formik = useFormik({
@@ -26,7 +35,26 @@ const Login = () => {
       remember: Yup.boolean(),
     }),
     onSubmit: (values) => {
+      setIsLoading(true)
       console.log(values)
+      dispatch({
+        type: 'set',
+        auth: {
+          isLogged: true,
+          account: { id: 1, username: 'akwancakra', role: 'admin' },
+        },
+      })
+
+      toast.success('Berhasil masuk!', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      navigate('/ad/dashboard')
     },
   })
 
@@ -55,6 +83,9 @@ const Login = () => {
         <div
           className="text-main-wrapper m-4 rounded-20 p-3 position-absolute"
           style={{ zIndex: 99 }}
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="500"
         >
           <p className="fw-bold mb-0" style={{ fontSize: '50px' }}>
             Mari buat data anda terorganisir
@@ -95,7 +126,12 @@ const Login = () => {
       <div className="contents order-2 order-md-1">
         <div className="container">
           <div className="row align-items-center justify-content-center">
-            <div className="col-10 py-5">
+            <div
+              className="col-10 py-5"
+              data-aos="fade-up"
+              data-aos-easing="ease-in-sine"
+              data-aos-duration="300"
+            >
               <h5 className="text-purple fw-bold">Masuk</h5>
               <h3 className="mb-4 fw-bold">Senang melihatmu!</h3>
               {msg && (
@@ -103,7 +139,7 @@ const Login = () => {
                   <span>{msg}</span>
                 </CAlert>
               )}
-              <form onSubmit={formik.handleSubmit}>
+              <CForm onSubmit={formik.handleSubmit}>
                 <div className="form-floating mb-3">
                   <input
                     type="email"
@@ -148,9 +184,12 @@ const Login = () => {
                     value={formik.values.remember}
                     onChange={formik.handleChange}
                   />
-                  {/* <span class="ml-auto"><a href="#" class="forgot-pass">Forgot Password</a></span> */}
                 </div>
-                <button type="submit" className="btn btn-purple w-100 fw-bold rounded-15 py-2 mb-3">
+                <button
+                  type="submit"
+                  className="btn btn-purple w-100 fw-bold rounded-15 py-2 mb-3"
+                  disabled={isLoading}
+                >
                   Masuk
                 </button>
                 <p>
@@ -159,7 +198,7 @@ const Login = () => {
                     Buat akun
                   </Link>
                 </p>
-              </form>
+              </CForm>
             </div>
           </div>
         </div>

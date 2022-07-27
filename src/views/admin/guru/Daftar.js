@@ -2,13 +2,18 @@ import { CAlert, CButton, CForm, CFormInput, CPagination, CPaginationItem } from
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { GuruCard, BannerMedium } from 'src/components'
+import { useSelector } from 'react-redux'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const Daftar = () => {
+  const auth = useSelector((state) => state.auth)
   useEffect(() => {
     document.title = 'Daftar Guru | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
 
-  const auth = 'admin'
   const banner = { title: 'Daftar Guru', text: 'Berikut ini adalah daftar guru yang ada.' }
   const gurus = [
     { id: 1, nama: 'Prof. H. Naimin', matpel: { id: 1, nama: 'Matematika' } },
@@ -19,7 +24,12 @@ const Daftar = () => {
     <div>
       <BannerMedium data={banner} />
 
-      <div className="search mt-2">
+      <div
+        className="search mt-2"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="300"
+      >
         <CForm className="position-relative d-flex justify-content-center">
           <div className="input-group mb-3">
             <CButton color="primary" className="input-group-text btn-search">
@@ -39,7 +49,7 @@ const Daftar = () => {
         {gurus ? (
           gurus.map((guru) => (
             // eslint-disable-next-line react/jsx-key
-            <GuruCard guru={guru} auth={auth} key={guru.id} />
+            <GuruCard guru={guru} auth={auth.account.role} key={guru.id} />
           ))
         ) : (
           <CAlert color="primary" className="rounded-15">

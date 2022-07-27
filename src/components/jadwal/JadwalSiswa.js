@@ -1,9 +1,19 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const JadwalSiswa = ({ siswa, index }) => {
+  AOS.init()
+  AOS.refresh()
+
   return (
-    <div className="col-6 col-md-4">
+    <div
+      className="col-6 col-md-4"
+      data-aos="fade-up"
+      data-aos-easing="ease-in-sine"
+      data-aos-duration="600"
+    >
       <div className="mahasiswa-wrapper my-2">
         <div className="head">
           <span className="fw-bold px-3 text-white">{index + 1}</span>

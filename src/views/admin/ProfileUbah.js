@@ -8,11 +8,14 @@ import { useDropzone } from 'react-dropzone'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { BannerMedium } from 'src/components'
+import { useSelector } from 'react-redux'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const ProfileUbah = () => {
   const [msg, setMsg] = useState('')
   const [files, setFile] = useState([])
-  const auth = 'guru'
+  const auth = useSelector((state) => state.auth)
 
   const akun = {
     id: 1,
@@ -33,6 +36,8 @@ const ProfileUbah = () => {
 
   useEffect(() => {
     document.title = 'Tambah Siswa | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
 
   const banner = { title: 'Ubah Profil', text: '' }
@@ -131,13 +136,24 @@ const ProfileUbah = () => {
       <BannerMedium data={banner} />
 
       <div className="my-2">
-        <Link to="/profil" className="btn btn-soft-purple rounded-15 fw-bold">
+        <Link
+          to="/profil"
+          className="btn btn-soft-purple rounded-15 fw-bold"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="300"
+        >
           Kembali
         </Link>
       </div>
 
       <div className="d-md-flex justify-content-around my-3">
-        <div className="input-wrapper my-3 pe-md-2">
+        <div
+          className="input-wrapper my-3 pe-md-2"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="500"
+        >
           <div className="d-flex align-items-center mb-3">
             <span className="icon-bx rounded-15 text-white p-2 me-2 bg-purple">
               <i
@@ -171,7 +187,7 @@ const ProfileUbah = () => {
                 <small className="text-danger">{formik.errors.nama}</small>
               )}
             </div>
-            {auth === 'siswa' && (
+            {auth.account.role === 'siswa' && (
               <div className="mb-3 select2">
                 <label>Agama</label>
                 <Select
@@ -284,7 +300,12 @@ const ProfileUbah = () => {
           </CForm>
         </div>
 
-        <div className="jadwal-card jadwal-change preview-wrapper py-2">
+        <div
+          className="jadwal-card jadwal-change preview-wrapper py-2"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="600"
+        >
           <div
             className="preview shadow bg-white rounded-15"
             style={{ width: '100%', maxWidth: '100vw' }}
@@ -297,7 +318,7 @@ const ProfileUbah = () => {
               }}
             ></div>
             <div className="over-head"></div>
-            <div className="content px-3 row">
+            <div className="contents px-3 row">
               <div className="col-12">
                 <div className="d-flex align-items-center">
                   <i className="bx bx-chalkboard me-1"></i>
@@ -305,7 +326,7 @@ const ProfileUbah = () => {
                 </div>
                 <h4 className="fw-bold">{formik.values.nama ? formik.values.nama : 'Siswa'}</h4>
               </div>
-              {auth === 'siswa' && (
+              {auth.account.role === 'siswa' && (
                 <>
                   <div className="col-6">
                     <div className="d-flex align-items-center">
@@ -334,7 +355,7 @@ const ProfileUbah = () => {
                   </div>
                 </>
               )}
-              {auth === 'guru' && (
+              {auth.account.role === 'guru' && (
                 <>
                   <div className="col-6">
                     <div className="d-flex align-items-center">

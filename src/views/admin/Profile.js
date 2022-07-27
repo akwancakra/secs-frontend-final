@@ -1,13 +1,18 @@
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { BannerMedium } from 'src/components'
-import profilImg from '../../assets/images/avatars/user.png'
+import profilImg from 'src/assets/images/avatars/user.png'
+import { useSelector } from 'react-redux'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const Profile = () => {
-  const auth = 'admin'
+  const auth = useSelector((state) => state.auth)
 
   useEffect(() => {
     document.title = 'Profil | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
 
   const banner = { title: 'Profil', text: '' }
@@ -23,7 +28,12 @@ const Profile = () => {
     <div>
       <BannerMedium data={banner} />
 
-      <div className="jadwal-card-detail preview-wrapper my-3 bg-white">
+      <div
+        className="jadwal-card-detail preview-wrapper my-3 bg-white"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="400"
+      >
         <div
           className="head px-3 d-flex align-items-center justify-content-end"
           style={{ backgroundColor: 'var(--purple-main)', maxHeight: '150px' }}

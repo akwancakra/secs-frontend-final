@@ -3,10 +3,13 @@ import React, { useEffect } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { BannerMedium, JadwalDetail } from 'src/components'
 import JadwalSiswa from 'src/components/jadwal/JadwalSiswa'
+import { useSelector } from 'react-redux'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const Detail = () => {
   const navigate = useNavigate()
-  const auth = 'admin'
+  const auth = useSelector((state) => state.auth)
 
   const banner = { title: 'Detil Jadwal', text: '' }
   const jadwal = {
@@ -31,6 +34,8 @@ const Detail = () => {
 
   useEffect(() => {
     document.title = 'Detail Jadwal | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
 
   return (
@@ -42,13 +47,16 @@ const Detail = () => {
           to="/jadwal/main"
           className="btn btn-soft-purple rounded-15 fw-bold d-flex align-items-center mt-3"
           style={{ width: 'fit-content' }}
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="300"
         >
           <i className="bx bxs-chevron-left"></i> Kembali
         </Link>
       </div>
 
       <div className="mb-4 mt-1">
-        <JadwalDetail jadwal={jadwal} auth={auth} />
+        <JadwalDetail jadwal={jadwal} auth={auth.account.role} />
       </div>
 
       <h2 className="mb-0 fw-bold mt-4">Siswa</h2>

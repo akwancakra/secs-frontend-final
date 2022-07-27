@@ -1,11 +1,19 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const BannerMedium = ({ data }) => {
+  AOS.init()
+  AOS.refresh()
+
   return (
     <div
       className="banner-medium text-white p-3 rounded-15 position-relative overflow-hidden"
       style={{ backgroundColor: 'var(--purple-dark)' }}
+      data-aos="fade-up"
+      data-aos-easing="ease-in-sine"
+      data-aos-duration="300"
     >
       <div className="my-4 position-relative" style={{ zIndex: 10 }}>
         <h2 className="fw-bold mb-0">{data.title}</h2>

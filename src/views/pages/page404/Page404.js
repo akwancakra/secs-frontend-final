@@ -1,36 +1,27 @@
-import React from 'react'
-import {
-  CButton,
-  CCol,
-  CContainer,
-  CFormInput,
-  CInputGroup,
-  CInputGroupText,
-  CRow,
-} from '@coreui/react'
-import CIcon from '@coreui/icons-react'
-import { cilMagnifyingGlass } from '@coreui/icons'
+import React, { useEffect } from 'react'
+import { CCol, CContainer, CRow } from '@coreui/react'
+import { Link } from 'react-router-dom'
 
 const Page404 = () => {
+  useEffect(() => {
+    document.title = '404 Page Not Found | Aplis'
+  }, [])
+
   return (
     <div className="bg-light min-vh-100 d-flex flex-row align-items-center">
       <CContainer>
         <CRow className="justify-content-center">
           <CCol md={6}>
-            <div className="clearfix">
-              <h1 className="float-start display-3 me-4">404</h1>
-              <h4 className="pt-3">Oops! You{"'"}re lost.</h4>
+            <div className="clearfix mb-3">
+              <h1 className="float-start display-3 me-4 text-purple fw-bold">404</h1>
+              <h4 className="pt-3">Oops! kesalahan.</h4>
               <p className="text-medium-emphasis float-start">
-                The page you are looking for was not found.
+                Halaman yang anda tuju tidak ditemukan.
               </p>
             </div>
-            <CInputGroup className="input-prepend">
-              <CInputGroupText>
-                <CIcon icon={cilMagnifyingGlass} />
-              </CInputGroupText>
-              <CFormInput type="text" placeholder="What are you looking for?" />
-              <CButton color="info">Search</CButton>
-            </CInputGroup>
+            <Link to={`/ad/dashboard`} className="btn btn-purple rounded-15 w-100">
+              Kembali ke dashboard
+            </Link>
           </CCol>
         </CRow>
       </CContainer>

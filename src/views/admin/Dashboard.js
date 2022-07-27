@@ -10,17 +10,32 @@ import {
   CRow,
 } from '@coreui/react'
 import { CChartBar } from '@coreui/react-chartjs'
-import React from 'react'
+import React, { useEffect } from 'react'
+import { useSelector } from 'react-redux'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const Dashboard = () => {
   const jadwalDiambil = [12, 20, 32, 50, 32]
   const jadwalSelesai = [22, 10, 12, 31, 8]
+  const auth = useSelector((state) => state.auth)
+
+  useEffect(() => {
+    document.title = 'Dashboard Admin | Aplis'
+    AOS.init()
+    AOS.refresh()
+  }, [])
 
   return (
     <div>
-      <div className="banner-large text-white p-3 rounded-15 position-relative overflow-hidden">
+      <div
+        className="banner-large text-white p-3 rounded-15 position-relative overflow-hidden"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="300"
+      >
         <div className="my-4 position-relative" style={{ zIndex: 10 }}>
-          <h2 className="fw-bold mb-0">Halo, Administrator</h2>
+          <h2 className="fw-bold mb-0">Halo, {auth.account.username}</h2>
           <p className="mb-0">Selamat datang kembali!</p>
         </div>
         <div className="position-absolute" style={{ left: 0, bottom: '20px' }}>
@@ -88,8 +103,13 @@ const Dashboard = () => {
       </div>
 
       <div className="three-graph row g-0">
-        <div className="col-12 col-md-4 text-white">
-          <div className="m-2 ms-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
+        <div
+          className="col-12 col-md-4 text-white"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="300"
+        >
+          <div className="my-sm-3 m-md-3 ms-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
             <div className="position-relative" style={{ zIndex: 10 }}>
               <p className="mb-0">Total Jadwal</p>
               <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
@@ -109,8 +129,13 @@ const Dashboard = () => {
             />
           </div>
         </div>
-        <div className="col-12 col-md-4 text-white">
-          <div className="my-2 p-2 bg-purple rounded-15 position-relative overflow-hidden">
+        <div
+          className="col-12 col-md-4 text-white"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="300"
+        >
+          <div className="my-3 p-2 bg-purple rounded-15 position-relative overflow-hidden">
             <div className="position-relative" style={{ zIndex: 10 }}>
               <p className="mb-0">Total Guru</p>
               <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
@@ -141,8 +166,13 @@ const Dashboard = () => {
             />
           </div>
         </div>
-        <div className="col-12 col-md-4 text-white">
-          <div className="m-2 me-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
+        <div
+          className="col-12 col-md-4 text-white"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="300"
+        >
+          <div className="my-sm-3 m-md-3 me-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
             <div className="position-relative" style={{ zIndex: 10 }}>
               <p className="mb-0">Total Siswa</p>
               <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
@@ -175,62 +205,64 @@ const Dashboard = () => {
         </div>
       </div>
 
-      <CRow>
-        <CCol xs={12} md={6}>
-          <CCard className="mb-4 rounded-15 mt-2" style={{ maxHeight: '350px' }}>
-            <CCardHeader className="d-flex align-items-center justify-content-between">
-              <p className="mb-0">Siswa mengambil jadwal</p>
-              <CDropdown>
-                <CDropdownToggle href="#" color="purple" className="rounded-15">
-                  Tanggal
-                </CDropdownToggle>
-                <CDropdownMenu>
-                  <CDropdownItem href="#">Action</CDropdownItem>
-                  <CDropdownItem href="#">Another action</CDropdownItem>
-                  <CDropdownItem href="#">Something else here</CDropdownItem>
-                </CDropdownMenu>
-              </CDropdown>
-            </CCardHeader>
-            <CCardBody>
-              <CChartBar
-                data={{
-                  labels: ['MTK', 'IPA', 'IPS', 'B. IND', 'B. ING'],
-                  datasets: [
-                    {
-                      label: 'Jadwal diambil',
-                      backgroundColor: '#A449FF',
-                      data: jadwalDiambil,
-                    },
-                  ],
-                }}
-                labels="months"
-              />
-            </CCardBody>
-          </CCard>
-        </CCol>
-        <CCol xs={12} md={6}>
-          <CCard className="mb-4 rounded-15 mt-2" style={{ maxHeight: '350px' }}>
-            <CCardHeader>
-              <p className="mb-0">Jadwal Selesai</p>
-            </CCardHeader>
-            <CCardBody>
-              <CChartBar
-                data={{
-                  labels: ['MTK', 'IPA', 'IPS', 'B. IND', 'B. ING'],
-                  datasets: [
-                    {
-                      label: 'Jadwal Selesai',
-                      backgroundColor: '#A449FF',
-                      data: jadwalSelesai,
-                    },
-                  ],
-                }}
-                labels="months"
-              />
-            </CCardBody>
-          </CCard>
-        </CCol>
-      </CRow>
+      <div data-aos="fade-up" data-aos-easing="ease-in-sine" data-aos-duration="500">
+        <CRow>
+          <CCol xs={12} md={6}>
+            <CCard className="mb-4 rounded-15" style={{ maxHeight: '350px' }}>
+              <CCardHeader className="d-flex align-items-center justify-content-between">
+                <p className="mb-0">Siswa mengambil jadwal</p>
+                <CDropdown>
+                  <CDropdownToggle color="purple" className="rounded-15">
+                    Hari
+                  </CDropdownToggle>
+                  <CDropdownMenu>
+                    <CDropdownItem href="#">5 Hari terakhir</CDropdownItem>
+                    <CDropdownItem href="#">10 Hari terakhir</CDropdownItem>
+                    <CDropdownItem href="#">30 Hari terakhir</CDropdownItem>
+                  </CDropdownMenu>
+                </CDropdown>
+              </CCardHeader>
+              <CCardBody>
+                <CChartBar
+                  data={{
+                    labels: ['MTK', 'IPA', 'IPS', 'B. IND', 'B. ING'],
+                    datasets: [
+                      {
+                        label: 'Jadwal diambil',
+                        backgroundColor: '#A449FF',
+                        data: jadwalDiambil,
+                      },
+                    ],
+                  }}
+                  labels="months"
+                />
+              </CCardBody>
+            </CCard>
+          </CCol>
+          <CCol xs={12} md={6}>
+            <CCard className="mb-4 rounded-15 mt-2" style={{ maxHeight: '350px' }}>
+              <CCardHeader>
+                <p className="mb-0">Jadwal Selesai</p>
+              </CCardHeader>
+              <CCardBody>
+                <CChartBar
+                  data={{
+                    labels: ['MTK', 'IPA', 'IPS', 'B. IND', 'B. ING'],
+                    datasets: [
+                      {
+                        label: 'Jadwal Selesai',
+                        backgroundColor: '#A449FF',
+                        data: jadwalSelesai,
+                      },
+                    ],
+                  }}
+                  labels="months"
+                />
+              </CCardBody>
+            </CCard>
+          </CCol>
+        </CRow>
+      </div>
     </div>
   )
 }

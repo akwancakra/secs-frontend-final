@@ -1,7 +1,6 @@
 import React from 'react'
 import {
   CAvatar,
-  CBadge,
   CDropdown,
   CDropdownDivider,
   CDropdownHeader,
@@ -9,23 +8,44 @@ import {
   CDropdownMenu,
   CDropdownToggle,
 } from '@coreui/react'
-import {
-  cilBell,
-  cilCreditCard,
-  cilCommentSquare,
-  cilEnvelopeOpen,
-  cilFile,
-  cilLockLocked,
-  cilSettings,
-  cilTask,
-  cilUser,
-} from '@coreui/icons'
+import { cilLockLocked, cilUser } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
-
-import avatar8 from './../../assets/images/avatars/siswa.png'
-import { Link } from 'react-router-dom'
+// IMG
+import avatar8 from 'src/assets/images/avatars/siswa.png'
+import { Link, useNavigate } from 'react-router-dom'
+// RDUX
+import { useSelector, useDispatch } from 'react-redux'
+// TOAST
+import { toast } from 'react-toastify'
 
 const AppHeaderDropdown = () => {
+  const auth = useSelector((state) => state.auth)
+  const dispatch = useDispatch()
+  const navigate = useNavigate()
+
+  const LogoutHandler = () => {
+    dispatch({
+      type: 'set',
+      auth: {
+        isLogged: false,
+        account: { id: 0, username: '', role: '' },
+      },
+    })
+
+    console.log(auth)
+
+    toast.success('Berhasil keluar!', {
+      position: 'top-right',
+      autoClose: 5000,
+      hideProgressBar: false,
+      closeOnClick: true,
+      pauseOnHover: true,
+      draggable: true,
+      progress: undefined,
+    })
+    navigate('/login')
+  }
+
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
@@ -40,7 +60,7 @@ const AppHeaderDropdown = () => {
           </CDropdownItem>
         </Link>
         <CDropdownDivider />
-        <CDropdownItem href="#">
+        <CDropdownItem onClick={() => LogoutHandler()}>
           <CIcon icon={cilLockLocked} className="me-2" />
           Keluar
         </CDropdownItem>

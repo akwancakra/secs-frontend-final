@@ -2,12 +2,22 @@
 import React from 'react'
 import defaultBanner from 'src/assets/images/banner-default.jpg'
 import { Link } from 'react-router-dom'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 // eslint-disable-next-line react/prop-types
 const JadwalCard = ({ jadwalData }) => {
+  AOS.init()
+  AOS.refresh()
+
   return (
     <div className="col-12 col-md-6">
-      <div className="jadwal-card preview-wrapper py-2">
+      <div
+        className="jadwal-card preview-wrapper py-2"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="600"
+      >
         <div
           className="preview shadow bg-white rounded-15"
           style={{ width: '100%', maxWidth: '100vw' }}
@@ -17,7 +27,7 @@ const JadwalCard = ({ jadwalData }) => {
             style={{ backgroundImage: `url(${defaultBanner})` }}
           ></div>
           <div className="over-head"></div>
-          <div className="content px-3 row">
+          <div className="contents px-3 row">
             <div className="col-6">
               <div className="d-flex align-items-center">
                 <i className="bx bxs-school me-1"></i>

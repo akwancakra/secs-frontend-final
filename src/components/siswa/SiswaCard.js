@@ -3,8 +3,13 @@ import React from 'react'
 import { Link } from 'react-router-dom'
 import defaultBanner from 'src/assets/images/banner-default.jpg'
 import swal from 'sweetalert'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const SiswaCard = ({ siswa, auth }) => {
+  AOS.init()
+  AOS.refresh()
+
   const swalDisplay = async (id) => {
     swal({
       title: 'Apakah anda yakin?',
@@ -23,7 +28,12 @@ const SiswaCard = ({ siswa, auth }) => {
 
   return (
     <div className="col-12 col-md-4">
-      <div className="jadwal-card preview-wrapper py-2">
+      <div
+        className="jadwal-card preview-wrapper py-2"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="500"
+      >
         <div
           className="preview shadow bg-white rounded-15"
           style={{ width: '100%', maxWidth: '100vw' }}
@@ -33,7 +43,7 @@ const SiswaCard = ({ siswa, auth }) => {
             style={{ backgroundImage: `url(${defaultBanner})`, minHeight: '250px' }}
           ></div>
           <div className="over-head"></div>
-          <div className="content px-3 row">
+          <div className="contents px-3 row">
             <div className="col-6">
               <div className="d-flex align-items-center">
                 <i className="bx bx-user me-1"></i>

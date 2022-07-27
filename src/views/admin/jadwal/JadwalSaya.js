@@ -14,6 +14,8 @@ import {
 import React, { useEffect } from 'react'
 import { Link } from 'react-router-dom'
 import { BannerMedium } from 'src/components'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
 
 const Daftar = () => {
   const banner = {
@@ -23,13 +25,20 @@ const Daftar = () => {
 
   useEffect(() => {
     document.title = 'Jadwal Saya | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
 
   return (
     <div>
       <BannerMedium data={banner} />
 
-      <div className="search mt-2">
+      <div
+        className="search mt-2"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="300"
+      >
         <CForm className="position-relative d-flex justify-content-center">
           <div className="input-group mb-3">
             <CButton color="primary" className="input-group-text btn-search">
@@ -45,13 +54,23 @@ const Daftar = () => {
         </CForm>
       </div>
 
-      <div className="d-flex mb-3">
+      <div
+        className="d-flex mb-3"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="300"
+      >
         <Link to="/jadwal/tambah" className="btn btn-purple rounded-15">
           Tambah Jadwal
         </Link>
       </div>
 
-      <div className="tabel-custom-wrapper">
+      <div
+        className="tabel-custom-wrapper"
+        data-aos="fade-up"
+        data-aos-easing="ease-in-sine"
+        data-aos-duration="600"
+      >
         <CTable hover borderless className="bg-white rounded-15">
           <CTableHead>
             <CTableRow>
@@ -98,7 +117,12 @@ const Daftar = () => {
           </CTableBody>
         </CTable>
 
-        <div className="d-flex justify-content-end">
+        <div
+          className="d-flex justify-content-end"
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="600"
+        >
           <CPagination>
             <CPaginationItem className="cursor-pointer">
               <Link to="#">Previous</Link>

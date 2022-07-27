@@ -2,9 +2,12 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../../../assets/css/login.css'
 import Select from 'react-select'
-import { CFormFloating } from '@coreui/react'
+import { CForm, CFormFloating } from '@coreui/react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
+import AOS from 'aos'
+import 'aos/dist/aos.css'
+import { toast } from 'react-toastify'
 
 const Register = () => {
   const [msg, setMsg] = useState('')
@@ -12,6 +15,8 @@ const Register = () => {
 
   useEffect(() => {
     document.title = 'Daftar | Aplis'
+    AOS.init()
+    AOS.refresh()
   }, [])
 
   const formik = useFormik({
@@ -62,6 +67,15 @@ const Register = () => {
     }),
     onSubmit: (values) => {
       console.log(values)
+      toast.success('Berhasil daftar!', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
     },
   })
 
@@ -103,6 +117,9 @@ const Register = () => {
         <div
           className="text-main-wrapper m-4 rounded-20 p-3 position-absolute"
           style={{ zIndex: 99 }}
+          data-aos="fade-up"
+          data-aos-easing="ease-in-sine"
+          data-aos-duration="500"
         >
           <p className="fw-bold mb-0" style={{ fontSize: '50px' }}>
             Mulai pekerjaan baru dan cepat
@@ -143,10 +160,15 @@ const Register = () => {
       <div className="contents order-2 order-md-1">
         <div className="container">
           <div className="row align-items-center justify-content-center">
-            <div className="col-10 py-5">
+            <div
+              className="col-10 py-5"
+              data-aos="fade-up"
+              data-aos-easing="ease-in-sine"
+              data-aos-duration="300"
+            >
               <h5 className="text-purple fw-bold">Daftar</h5>
               <h3 className="mb-4 fw-bold">Mari bergabung!</h3>
-              <form onSubmit={formik.handleSubmit}>
+              <CForm onSubmit={formik.handleSubmit}>
                 <div className="form-floating mb-3">
                   <input
                     type="text"
@@ -297,7 +319,7 @@ const Register = () => {
                     Masuk
                   </Link>
                 </p>
-              </form>
+              </CForm>
             </div>
           </div>
         </div>
