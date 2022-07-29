@@ -1,8 +1,20 @@
 import { createStore } from 'redux'
+import Cookies from 'universal-cookie'
+
+const cookies = new Cookies()
+let data = cookies.get('auth')
+if (!data) {
+  data = {
+    auth: {
+      isLogged: false,
+      account: { id: 0, username: '', role: '' },
+    },
+  }
+}
 
 const initialState = {
   sidebarShow: true,
-  auth: { isLogged: false, account: { id: 0, username: '', role: '' } },
+  auth: data.auth,
 }
 
 const changeState = (state = initialState, { type, ...rest }) => {

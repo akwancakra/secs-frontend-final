@@ -1,0 +1,57 @@
+.sc-dmRaPn.gelpCx * {
+    font-size: 16px;
+}
+
+.sc-dmRaPn.gelpCx {
+    min-height: 100px;
+    border-radius: 15px 15px 0 0;
+    -webkit-border-radius: 15px 15px 0 0;
+    -moz-border-radius: 15px 15px 0 0;
+    -ms-border-radius: 15px 15px 0 0;
+    -o-border-radius: 15px 15px 0 0;
+}
+
+.sc-dmRaPn .sc-gsnTZi.idPHNo.rdt_TableHead {
+    font-weight: bold;
+}
+
+.sc-dmRaPn .sc-jqUVSM.jVeafb.rdt_TableRow:hover {
+    background: rgb(245, 245, 245);
+    transition: 0.25s;
+    -webkit-transition: 0.25s;
+    -moz-transition: 0.25s;
+    -ms-transition: 0.25s;
+    -o-transition: 0.25s;
+}
+
+
+/* PAGINATION */
+
+nav.sc-iIPllB.jxflYm.rdt_Pagination .sc-llJcti.gnaqej {
+    color: var(--white);
+}
+
+nav.sc-iIPllB.jxflYm.rdt_Pagination .sc-llJcti.gnaqej select.sc-cxabCf option {
+    background: var(--white);
+}
+
+nav.sc-iIPllB.jxflYm.rdt_Pagination .sc-llJcti.gnaqej select.sc-cxabCf {
+    border: none;
+    background: var(--purple-main);
+    border-radius: 10px;
+    -webkit-border-radius: 10px;
+    -moz-border-radius: 10px;
+    -ms-border-radius: 10px;
+    -o-border-radius: 10px;
+    color: var(--white);
+}
+
+nav.sc-iIPllB.jxflYm.rdt_Pagination {
+    font-size: 15px;
+    margin-bottom: 10px;
+    border-radius: 0 0 15px 15px;
+    -webkit-border-radius: 0 0 15px 15px;
+    -moz-border-radius: 0 0 15px 15px;
+    -ms-border-radius: 0 0 15px 15px;
+    -o-border-radius: 0 0 15px 15px;
+}

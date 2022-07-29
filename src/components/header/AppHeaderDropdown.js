@@ -11,17 +11,21 @@ import {
 import { cilLockLocked, cilUser } from '@coreui/icons'
 import CIcon from '@coreui/icons-react'
 // IMG
-import avatar8 from 'src/assets/images/avatars/siswa.png'
+import siswaPng from 'src/assets/images/avatars/siswa.png'
+import userPng from 'src/assets/images/avatars/user.png'
+
 import { Link, useNavigate } from 'react-router-dom'
 // RDUX
 import { useSelector, useDispatch } from 'react-redux'
 // TOAST
 import { toast } from 'react-toastify'
+import Cookies from 'universal-cookie'
 
 const AppHeaderDropdown = () => {
   const auth = useSelector((state) => state.auth)
   const dispatch = useDispatch()
   const navigate = useNavigate()
+  const cookies = new Cookies()
 
   const LogoutHandler = () => {
     dispatch({
@@ -34,6 +38,7 @@ const AppHeaderDropdown = () => {
 
     console.log(auth)
 
+    cookies.remove('auth')
     toast.success('Berhasil keluar!', {
       position: 'top-right',
       autoClose: 5000,
@@ -49,18 +54,20 @@ const AppHeaderDropdown = () => {
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
-        <CAvatar src={avatar8} size="md" className="bg-secondary" />
+        {auth.account.role === 'siswa' ? (
+          <CAvatar src={siswaPng} size="md" className="bg-secondary" />
+        ) : (
+          <CAvatar src={userPng} size="md" className="bg-secondary" />
+        )}
       </CDropdownToggle>
       <CDropdownMenu className="pt-0 mt-2" placement="bottom-end">
         <CDropdownHeader className="bg-light fw-semibold py-2">Akun</CDropdownHeader>
-        <Link to="/profil">
-          <CDropdownItem>
-            <CIcon icon={cilUser} className="me-2" />
-            Profil
-          </CDropdownItem>
+        <Link to="/profil" className="dropdown-item">
+          <CIcon icon={cilUser} className="me-2" />
+          Profil
         </Link>
         <CDropdownDivider />
-        <CDropdownItem onClick={() => LogoutHandler()}>
+        <CDropdownItem onClick={() => LogoutHandler()} className="cursor-pointer">
           <CIcon icon={cilLockLocked} className="me-2" />
           Keluar
         </CDropdownItem>

@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { CAlert, CForm } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
@@ -10,10 +11,12 @@ import * as Yup from 'yup'
 import { BannerMedium } from 'src/components'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import { useSelector } from 'react-redux'
 
 const Tambah = () => {
   const [files, setFiles] = useState([])
   const [msg, setMsg] = useState('')
+  const auth = useSelector((state) => state.auth)
 
   useEffect(() => {
     document.title = 'Tambah Jadwal | Aplis'
@@ -27,8 +30,6 @@ const Tambah = () => {
     { value: 2, label: 'H. Sukma Jaya - Bahasa Indonesia' },
     { value: 3, label: 'Yanah Wulandari - Sastra Arab' },
   ]
-
-  const auth = 'admin'
 
   const { getRootProps, getInputProps, fileRejections, acceptedFiles } = useDropzone({
     accept: {
@@ -141,7 +142,7 @@ const Tambah = () => {
             </CAlert>
           )}
           <CForm className="card-form" onSubmit={formik.handleSubmit}>
-            {auth == 'admin' ? (
+            {auth.account.role === 'admin' ? (
               <div className="mb-3 select2">
                 <label>Guru</label>
                 <Select

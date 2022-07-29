@@ -96,35 +96,30 @@ const ProfileUbah = () => {
   const formik = useFormik({
     initialValues: {
       nama: akun.nama,
+      agama: '',
       username: '',
       email: '',
       password: '',
       password_confirm: '',
     },
-    validationSchema: {
+    validationSchema: Yup.object({
       nama: Yup.string()
         .min(4, 'Minimal 4 karakter!')
         .max(40, 'Maksimal 40 karakter!')
         .required('Nama wajib diisi'),
-      email: Yup.string()
-        .min(4, 'Minimal 4 karakter!')
-        .max(50, 'Maksimal 50 karakter!')
-        .required('Email wajib diisi!'),
-      username: Yup.string()
-        .min(4, 'Minimal 4 karakter!')
-        .max(30, 'Maksimal 30 karakter!')
-        .required('Username wajib diisi!'),
+      email: Yup.string().min(4, 'Minimal 4 karakter!').max(50, 'Maksimal 50 karakter!'),
+      username: Yup.string().min(4, 'Minimal 4 karakter!').max(30, 'Maksimal 30 karakter!'),
       password: Yup.string()
         .min(8, 'Minimal 8 karakter')
         .matches(/[a-z]+/, 'Minimal 1 huruf kecil!')
         .matches(/[A-Z]+/, 'Minimal 1 huruf besar!')
         .matches(/[@$!%*#?&]+/, 'Minimal 1 simbol!')
-        .matches(/\d+/, 'Minimal 1 angka!')
-        .required('Password wajib diisi!'),
-      password_confirm: Yup.string()
-        .oneOf([Yup.ref('password'), null], 'Password konfirmasi harus sesuai dengan password!')
-        .required('Konfirmasi Password wajib diisi!'),
-    },
+        .matches(/\d+/, 'Minimal 1 angka!'),
+      password_confirm: Yup.string().oneOf(
+        [Yup.ref('password'), null],
+        'Password konfirmasi harus sesuai dengan password!',
+      ),
+    }),
     onSubmit: (values) => {
       // CARI EMAIL YANG SAMA, CARI NIP YANG SAMA
       console.log(values, files)
@@ -187,7 +182,7 @@ const ProfileUbah = () => {
                 <small className="text-danger">{formik.errors.nama}</small>
               )}
             </div>
-            {auth.account.role === 'siswa' && (
+            {auth.account.role !== 'admin' && (
               <div className="mb-3 select2">
                 <label>Agama</label>
                 <Select
@@ -308,7 +303,7 @@ const ProfileUbah = () => {
         >
           <div
             className="preview shadow bg-white rounded-15"
-            style={{ width: '100%', maxWidth: '100vw' }}
+            style={{ width: '100%', maxWidth: '100vw', minWidth: '250px' }}
           >
             <div
               className="head px-3 py-2"
@@ -324,7 +319,7 @@ const ProfileUbah = () => {
                   <i className="bx bx-chalkboard me-1"></i>
                   <p className="mb-0">Nama</p>
                 </div>
-                <h4 className="fw-bold">{formik.values.nama ? formik.values.nama : 'Siswa'}</h4>
+                <h4 className="fw-bold">{formik.values.nama ? formik.values.nama : 'Nama'}</h4>
               </div>
               {auth.account.role === 'siswa' && (
                 <>

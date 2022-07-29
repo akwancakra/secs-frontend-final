@@ -58,24 +58,38 @@ const Profile = () => {
             </div>
             <h4 className="fw-bold">{user.nama}</h4>
           </div>
-          <div className="col-12 col-md-6">
-            <div className="d-flex align-items-center">
-              <p className="mb-0">NIS</p>
+          {auth.account.role === 'siswa' && (
+            <div className="col-12 col-md-6">
+              <div className="d-flex align-items-center">
+                <p className="mb-0">NIS</p>
+              </div>
+              <h4 className="fw-bold">{user.nis}</h4>
             </div>
-            <h4 className="fw-bold">{user.nis}</h4>
-          </div>
-          <div className="col-12 col-md-6">
-            <div className="d-flex align-items-center">
-              <p className="mb-0">Agama</p>
+          )}
+          {auth.account.role === 'guru' && (
+            <div className="col-12 col-md-6">
+              <div className="d-flex align-items-center">
+                <p className="mb-0">NIP</p>
+              </div>
+              <h4 className="fw-bold">{user.nis}</h4>
             </div>
-            <h4 className="fw-bold">{user.agama}</h4>
-          </div>
-          <div className="col-12 col-md-6">
-            <div className="d-flex align-items-center">
-              <p className="mb-0">Jenis Kelamin</p>
-            </div>
-            <h4 className="fw-bold">{user.jenis_kelamin}</h4>
-          </div>
+          )}
+          {auth.account.role !== 'admin' && (
+            <>
+              <div className="col-12 col-md-6">
+                <div className="d-flex align-items-center">
+                  <p className="mb-0">Agama</p>
+                </div>
+                <h4 className="fw-bold">{user.agama}</h4>
+              </div>
+              <div className="col-12 col-md-6">
+                <div className="d-flex align-items-center">
+                  <p className="mb-0">Jenis Kelamin</p>
+                </div>
+                <h4 className="fw-bold">{user.jenis_kelamin}</h4>
+              </div>
+            </>
+          )}
         </div>
       </div>
     </div>

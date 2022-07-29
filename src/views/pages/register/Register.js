@@ -10,6 +10,11 @@ import 'aos/dist/aos.css'
 import { toast } from 'react-toastify'
 
 const Register = () => {
+  const [passwordType, setPasswordType] = useState('password')
+  const [passwordTypeConf, setPasswordTypeConf] = useState('password')
+  const [passwordToggle, setPasswordToggle] = useState(false)
+  const [passwordToggleConf, setPasswordToggleConf] = useState(false)
+
   const [msg, setMsg] = useState('')
   const navigate = useNavigate()
 
@@ -18,6 +23,26 @@ const Register = () => {
     AOS.init()
     AOS.refresh()
   }, [])
+
+  const passwordChange = () => {
+    if (passwordToggle) {
+      setPasswordType('password')
+      setPasswordToggle(false)
+    } else {
+      setPasswordType('text')
+      setPasswordToggle(true)
+    }
+  }
+
+  const passwordChangeConf = () => {
+    if (passwordToggleConf) {
+      setPasswordTypeConf('password')
+      setPasswordToggleConf(false)
+    } else {
+      setPasswordTypeConf('text')
+      setPasswordToggleConf(true)
+    }
+  }
 
   const formik = useFormik({
     initialValues: {
@@ -272,9 +297,9 @@ const Register = () => {
                     <small className="text-danger">{formik.errors.email}</small>
                   )}
                 </div>
-                <div className="form-floating mb-3">
+                <div className="form-floating mb-3 position-relative">
                   <input
-                    type="password"
+                    type={passwordType}
                     className={
                       'form-control rounded-15' +
                       (formik.errors.password && formik.touched.password ? ' is-invalid' : '')
@@ -285,6 +310,14 @@ const Register = () => {
                     value={formik.values.password}
                     onChange={formik.handleChange}
                   />
+                  <i
+                    className={
+                      (passwordToggle === false ? 'bx bxs-hide' : 'bx bxs-show') +
+                      ` position-absolute cursor-pointer`
+                    }
+                    style={{ right: 15, top: 20, fontSize: '20px' }}
+                    onClick={() => passwordChange()}
+                  ></i>
                   <label htmlFor="password">Password</label>
                   {formik.errors.password && formik.touched.password && (
                     <small className="text-danger">{formik.errors.password}</small>
@@ -292,7 +325,7 @@ const Register = () => {
                 </div>
                 <div className="form-floating mb-3">
                   <input
-                    type="password"
+                    type={passwordTypeConf}
                     className={
                       'form-control rounded-15' +
                       (formik.errors.password_confirm && formik.touched.password_confirm
@@ -305,6 +338,14 @@ const Register = () => {
                     value={formik.values.password_confirm}
                     onChange={formik.handleChange}
                   />
+                  <i
+                    className={
+                      (passwordToggleConf === false ? 'bx bxs-hide' : 'bx bxs-show') +
+                      ` position-absolute cursor-pointer`
+                    }
+                    style={{ right: 15, top: 20, fontSize: '20px' }}
+                    onClick={() => passwordChangeConf()}
+                  ></i>
                   <label htmlFor="password">Konfirmasi Password</label>
                   {formik.errors.password_confirm && formik.touched.password_confirm && (
                     <small className="text-danger">{formik.errors.password_confirm}</small>

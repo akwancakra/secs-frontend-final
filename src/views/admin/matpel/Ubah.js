@@ -106,7 +106,6 @@ const Ubah = () => {
 
         <div
           className="jadwal-card jadwal-change preview-wrapper py-2"
-          style={{ minWidth: '400px' }}
           data-aos="fade-up"
           data-aos-easing="ease-in-sine"
           data-aos-duration="600"

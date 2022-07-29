@@ -8,13 +8,17 @@ import { useSelector, useDispatch } from 'react-redux'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { toast } from 'react-toastify'
+import Cookies from 'universal-cookie'
 
 const Login = () => {
+  const [passwordType, setPasswordType] = useState('password')
+  const [passwordToggle, setPasswordToggle] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
   const [msg, setMsg] = useState('')
   const dispatch = useDispatch()
   const auth = useSelector((state) => state.auth)
 
+  const cookies = new Cookies()
   const navigate = useNavigate()
 
   useEffect(() => {
@@ -22,6 +26,16 @@ const Login = () => {
     AOS.init()
     AOS.refresh()
   }, [])
+
+  const passwordChange = () => {
+    if (passwordToggle) {
+      setPasswordType('password')
+      setPasswordToggle(false)
+    } else {
+      setPasswordType('text')
+      setPasswordToggle(true)
+    }
+  }
 
   const formik = useFormik({
     initialValues: {
@@ -37,6 +51,30 @@ const Login = () => {
     onSubmit: (values) => {
       setIsLoading(true)
       console.log(values)
+      if (values.remember) {
+        cookies.set(
+          'auth',
+          {
+            auth: {
+              isLogged: true,
+              account: { id: 1, username: 'akwancakra', role: 'admin' },
+            },
+          },
+          { path: '/', maxAge: 2592000000 },
+        )
+      } else {
+        cookies.set(
+          'auth',
+          {
+            auth: {
+              isLogged: true,
+              account: { id: 1, username: 'akwancakra', role: 'admin' },
+            },
+          },
+          { path: '/' },
+        )
+      }
+
       dispatch({
         type: 'set',
         auth: {
@@ -54,6 +92,7 @@ const Login = () => {
         draggable: true,
         progress: undefined,
       })
+
       navigate('/ad/dashboard')
     },
   })
@@ -158,9 +197,9 @@ const Login = () => {
                     <small className="text-danger">{formik.errors.email}</small>
                   )}
                 </div>
-                <div className="form-floating mb-3">
+                <div className="form-floating mb-3 position-relative">
                   <input
-                    type="password"
+                    type={passwordType}
                     className={
                       'form-control rounded-15' +
                       (formik.errors.password && formik.touched.password ? ' is-invalid' : '')
@@ -171,6 +210,14 @@ const Login = () => {
                     value={formik.values.password}
                     onChange={formik.handleChange}
                   />
+                  <i
+                    className={
+                      (passwordToggle === false ? 'bx bxs-hide' : 'bx bxs-show') +
+                      ` position-absolute cursor-pointer`
+                    }
+                    style={{ right: 15, top: 20, fontSize: '20px' }}
+                    onClick={() => passwordChange()}
+                  ></i>
                   <label htmlFor="password">Password</label>
                   {formik.errors.password && formik.touched.password && (
                     <small className="text-danger">{formik.errors.password}</small>

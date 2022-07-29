@@ -153,7 +153,7 @@ const Daftar = () => {
             {nilais ? (
               nilais.map((nilai, index) => (
                 // eslint-disable-next-line react/jsx-key
-                <CTableRow className="align-middle">
+                <CTableRow className="align-middle" key={nilai.id}>
                   <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
                   <CTableDataCell>{nilai.nama}</CTableDataCell>
                   <CTableDataCell>{nilai.matpel}</CTableDataCell>
@@ -188,21 +188,21 @@ const Daftar = () => {
 
         <div className="d-flex justify-content-end">
           <CPagination>
-            <CPaginationItem className="cursor-pointer">
-              <Link to="#">Previous</Link>
-            </CPaginationItem>
-            <CPaginationItem className="cursor-pointer">
-              <Link to="#">1</Link>
-            </CPaginationItem>
-            <CPaginationItem className="cursor-pointer">
-              <Link to="#">2</Link>
-            </CPaginationItem>
-            <CPaginationItem className="cursor-pointer">
-              <Link to="#">3</Link>
-            </CPaginationItem>
-            <CPaginationItem className="cursor-pointer">
-              <Link to="#">Next</Link>
-            </CPaginationItem>
+            <Link to="#" className="page-link cursor-pointer">
+              Previous
+            </Link>
+            <Link to="#" className="page-link cursor-pointer">
+              1
+            </Link>
+            <Link to="#" className="page-link cursor-pointer">
+              2
+            </Link>
+            <Link to="#" className="page-link cursor-pointer">
+              3
+            </Link>
+            <Link to="#" className="page-link cursor-pointer">
+              Next
+            </Link>
           </CPagination>
         </div>
       </div>

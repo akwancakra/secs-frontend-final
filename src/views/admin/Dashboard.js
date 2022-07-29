@@ -109,7 +109,7 @@ const Dashboard = () => {
           data-aos-easing="ease-in-sine"
           data-aos-duration="300"
         >
-          <div className="my-sm-3 m-md-3 ms-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
+          <div className="my-sm-3 m-md-3 mt-3 ms-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
             <div className="position-relative" style={{ zIndex: 10 }}>
               <p className="mb-0">Total Jadwal</p>
               <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
@@ -172,7 +172,7 @@ const Dashboard = () => {
           data-aos-easing="ease-in-sine"
           data-aos-duration="300"
         >
-          <div className="my-sm-3 m-md-3 me-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
+          <div className="my-sm-3 m-md-3 mb-3 me-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
             <div className="position-relative" style={{ zIndex: 10 }}>
               <p className="mb-0">Total Siswa</p>
               <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
@@ -208,7 +208,7 @@ const Dashboard = () => {
       <div data-aos="fade-up" data-aos-easing="ease-in-sine" data-aos-duration="500">
         <CRow>
           <CCol xs={12} md={6}>
-            <CCard className="mb-4 rounded-15" style={{ maxHeight: '350px' }}>
+            <CCard className="mb-4 rounded-15" style={{ maxHeight: '400px' }}>
               <CCardHeader className="d-flex align-items-center justify-content-between">
                 <p className="mb-0">Siswa mengambil jadwal</p>
                 <CDropdown>
@@ -240,7 +240,7 @@ const Dashboard = () => {
             </CCard>
           </CCol>
           <CCol xs={12} md={6}>
-            <CCard className="mb-4 rounded-15 mt-2" style={{ maxHeight: '350px' }}>
+            <CCard className="mb-4 rounded-15 mt-2" style={{ maxHeight: '400px' }}>
               <CCardHeader>
                 <p className="mb-0">Jadwal Selesai</p>
               </CCardHeader>

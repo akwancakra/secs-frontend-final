@@ -208,7 +208,7 @@ const Dashboard = () => {
           <CCol xs={12} md={6}>
             <CCard
               className="mb-4 rounded-15 mt-2"
-              style={{ maxHeight: '350px' }}
+              style={{ maxHeight: '400px' }}
               data-aos="fade-up"
               data-aos-easing="ease-in-sine"
               data-aos-duration="500"
@@ -246,7 +246,7 @@ const Dashboard = () => {
           <CCol xs={12} md={6}>
             <CCard
               className="mb-4 rounded-15 mt-2"
-              style={{ maxHeight: '300px' }}
+              style={{ maxHeight: '400px' }}
               data-aos="fade-up"
               data-aos-easing="ease-in-sine"
               data-aos-duration="500"
