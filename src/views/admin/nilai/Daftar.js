@@ -29,6 +29,7 @@ import 'aos/dist/aos.css'
 import axios from 'axios'
 
 const Daftar = () => {
+  const [search, setSearch] = useState('')
   const [nilais, setNilais] = useState([])
   const [guru, setGuru] = useState([])
   const [headers, setHeaders] = useState([])
@@ -76,16 +77,16 @@ const Daftar = () => {
       setGuru(response.data)
 
       const responseTwo = await axios.get(`http://localhost:5000/guru/${response.data.id}/nilai`)
-      setNilais(responseTwo.data.jadwal)
+      setNilais(responseTwo.data)
 
-      console.log(
-        responseTwo.data.jadwal.map((d) => ({
-          nis: "'" + responseTwo.data.nip,
-          nama: `${responseTwo.data.nama}`,
-          matpel: `${responseTwo.data.mataPelajaran.nama}`,
-          ruang: `${d.ruang}`,
-          tanggal: `${new Date(d.tanggal).toLocaleString()}`,
-          nilai: `${d.nilai[0] ? d.nilai[0].nilai : 'Belum ada nilai'}`,
+      setData(
+        responseTwo.data.map((d) => ({
+          nis: "'" + d.siswa.nis,
+          nama: d.siswa.nama,
+          matpel: d.jadwal.guru.mataPelajaran.nama,
+          ruang: d.jadwal.ruang,
+          tanggal: new Date(d.jadwal.tanggal).toLocaleString(),
+          nilai: d.nilai ? d.nilai : 'Belum ada nilai',
         })),
       )
 
@@ -100,17 +101,17 @@ const Daftar = () => {
     } else if (auth.role === 3) {
       const response = await axios.get(`http://localhost:5000/siswa/user-id/${auth.id}`)
 
-      const responseTwo = await axios.get(`http://localhost:5000/siswa/${response.data.id}/jadwal`)
-      setNilais(responseTwo.data.jadwal)
+      const responseTwo = await axios.get(`http://localhost:5000/siswa/${response.data.id}/nilai`)
+      setNilais(responseTwo.data)
 
       setData(
-        responseTwo.data.jadwal.map((d) => ({
-          nip: "'" + d.guru.nip,
-          nama: `${d.guru.nama}`,
-          matpel: `${d.guru.mataPelajaran.nama}`,
-          ruang: `${d.ruang}`,
-          tanggal: `${new Date(d.tanggal).toLocaleString()}`,
-          nilai: `${d.nilai[0] ? d.nilai[0].nilai : 'Belum ada nilai'}`,
+        responseTwo.data.map((d) => ({
+          nip: "'" + d.jadwal.guru.nip,
+          nama: d.jadwal.guru.nama,
+          matpel: d.jadwal.guru.mataPelajaran.nama,
+          ruang: d.jadwal.ruang,
+          tanggal: new Date(d.jadwal.tanggal).toLocaleString(),
+          nilai: d.nilai ? d.nilai : 'Belum ada nilai',
         })),
       )
 
@@ -125,20 +126,11 @@ const Daftar = () => {
     }
   }
 
-  const swalDisplay = async (id) => {
-    swal({
-      title: 'Apakah anda yakin?',
-      text: 'Data yang anda hapus tidak bisa dipulihkan kembali!' + id,
-      icon: 'warning',
-      buttons: true,
-      dangerMode: true,
-    }).then((willDelete) => {
-      if (willDelete) {
-        swal('Data sukses dihapus!', {
-          icon: 'success',
-        })
-      }
-    })
+  const searchData = async (e) => {
+    e.preventDefault()
+
+    const resposne = await axios.get(`http://localhost:5000/api/nilai?search=${search}`)
+    setNilais(resposne.data)
   }
 
   return (
@@ -151,15 +143,20 @@ const Daftar = () => {
         data-aos-easing="ease-in-sine"
         data-aos-duration="300"
       >
-        <CForm className="position-relative d-flex justify-content-center">
+        <CForm
+          className="position-relative d-flex justify-content-center"
+          onSubmit={(e) => searchData(e)}
+        >
           <div className="input-group mb-3">
-            <CButton color="primary" className="input-group-text btn-search">
+            <CButton type="submit" color="primary" className="input-group-text btn-search">
               <i className="bx bx-search" />
             </CButton>
             <CFormInput
               type="text"
               id="search"
               name="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari berdasarkan nama, materi, atau pengajar"
             />
           </div>
@@ -218,30 +215,28 @@ const Daftar = () => {
               </CTableRow>
             </CTableHead>
             <CTableBody>
-              {nilais ? (
-                nilais.map((nilai, index) =>
-                  nilai.nilai.map((nil) => (
-                    // eslint-disable-next-line react/jsx-key
-                    <CTableRow className="align-middle" key={nil.id}>
-                      <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                      <CTableDataCell>{nil.siswa.nama}</CTableDataCell>
-                      <CTableDataCell>{nilai.tanggal}</CTableDataCell>
-                      <CTableDataCell>{nil.nilai}</CTableDataCell>
-                      <CTableDataCell>
-                        {nil.nilai ? (
-                          <Link
-                            to={`/nilai/${nil.id}`}
-                            className="btn btn-soft-purple rounded-15 me-2"
-                          >
-                            Detil
-                          </Link>
-                        ) : (
-                          ''
-                        )}
-                      </CTableDataCell>
-                    </CTableRow>
-                  )),
-                )
+              {nilais != '' ? (
+                nilais.map((nilai, index) => (
+                  // eslint-disable-next-line react/jsx-key
+                  <CTableRow className="align-middle" key={nilai.id}>
+                    <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
+                    <CTableDataCell>{nilai.siswa.nama}</CTableDataCell>
+                    <CTableDataCell>{nilai.jadwal.tanggal}</CTableDataCell>
+                    <CTableDataCell>{nilai.nilai}</CTableDataCell>
+                    <CTableDataCell>
+                      {nilai.nilai ? (
+                        <Link
+                          to={`/nilai/${nilai.id}`}
+                          className="btn btn-soft-purple rounded-15 me-2"
+                        >
+                          Detil
+                        </Link>
+                      ) : (
+                        ''
+                      )}
+                    </CTableDataCell>
+                  </CTableRow>
+                ))
               ) : (
                 <CTableRow className="align-middle">
                   <CTableDataCell colSpan="5">
@@ -277,7 +272,7 @@ const Daftar = () => {
               </CTableRow>
             </CTableHead>
             <CTableBody>
-              {nilais ? (
+              {nilais != '' ? (
                 nilais.map((nilai, index) => (
                   // eslint-disable-next-line react/jsx-key
                   <CTableRow className="align-middle" key={nilai.id}>
@@ -285,17 +280,17 @@ const Daftar = () => {
                     {auth.role !== 3 ? (
                       <CTableDataCell>{nilai.jadwal.guru.nama}</CTableDataCell>
                     ) : (
-                      <CTableDataCell>{nilai.guru.mataPelajaran.nama}</CTableDataCell>
+                      <CTableDataCell>{nilai.jadwal.guru.mataPelajaran.nama}</CTableDataCell>
                     )}
 
                     {auth.role === 1 && (
                       <CTableDataCell>{nilai.jadwal.guru.mataPelajaran.nama}</CTableDataCell>
                     )}
-                    {auth.role === 3 && <CTableDataCell>{nilai.guru.nama}</CTableDataCell>}
+                    {auth.role === 3 && <CTableDataCell>{nilai.jadwal.guru.nama}</CTableDataCell>}
 
                     {auth.role === 1 && <CTableDataCell>{nilai.nilai}</CTableDataCell>}
                     {auth.role === 3 && (
-                      <CTableDataCell>{nilai.nilai[0] ? nilai.nilai[0].nilai : '-'}</CTableDataCell>
+                      <CTableDataCell>{nilai.nilai ? nilai.nilai : '-'}</CTableDataCell>
                     )}
 
                     {auth.role === 1 && (
@@ -314,9 +309,9 @@ const Daftar = () => {
                     )}
                     {auth.role === 3 && (
                       <CTableDataCell>
-                        {nilai.nilai[0] ? (
+                        {nilai.nilai ? (
                           <Link
-                            to={`/nilai/${nilai.nilai[0].id}`}
+                            to={`/nilai/${nilai.id}`}
                             className="btn btn-soft-purple rounded-15 me-2"
                           >
                             Detil

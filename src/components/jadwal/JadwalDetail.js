@@ -111,24 +111,42 @@ const JadwalDetail = ({ jadwal, auth }) => {
           })`,
         }}
       >
-        {auth.role === 1 ||
-          (auth.id === jadwal.guru.userId && (
-            <>
-              <Link
-                to={`/jadwal/ubah/${jadwal.id}`}
-                className="btn btn-warning fw-bold rounded-15 me-2"
-              >
-                Ubah
-              </Link>
-              <button
-                type="button"
-                className="btn btn-danger fw-bold rounded-15"
-                onClick={() => swalDisplay(jadwal.id)}
-              >
-                Hapus
-              </button>
-            </>
-          ))}
+        {auth.role === 1 && (
+          <>
+            <Link
+              to={`/jadwal/ubah/${jadwal.id}`}
+              className="btn btn-warning fw-bold rounded-15 me-2"
+            >
+              Ubah
+            </Link>
+            <button
+              type="button"
+              className="btn btn-danger fw-bold rounded-15"
+              onClick={() => swalDisplay(jadwal.id)}
+            >
+              Hapus
+            </button>
+          </>
+        )}
+        {auth.role === 2
+          ? auth.id === jadwal.guru.userId && (
+              <>
+                <Link
+                  to={`/jadwal/ubah/${jadwal.id}`}
+                  className="btn btn-warning fw-bold rounded-15 me-2"
+                >
+                  Ubah
+                </Link>
+                <button
+                  type="button"
+                  className="btn btn-danger fw-bold rounded-15"
+                  onClick={() => swalDisplay(jadwal.id)}
+                >
+                  Hapus
+                </button>
+              </>
+            )
+          : ''}
         {auth.role === 3 && (
           <>
             <button

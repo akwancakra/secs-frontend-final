@@ -19,6 +19,9 @@ import axios from 'axios'
 const Dashboard = () => {
   const jadwalDiambil = [12, 20, 32, 50, 32]
   const jadwalSelesai = [22, 10, 12, 31, 8]
+
+  const [nilaiSem, setNilaiSem] = useState([])
+  const [jadwalTotal, setJadwalTotal] = useState([])
   const [siswa, setSiswa] = useState([])
   const auth = useSelector((state) => state.auth)
 
@@ -32,6 +35,16 @@ const Dashboard = () => {
   const getSiswa = async () => {
     const response = await axios.get(`http://localhost:5000/siswa/user-id/${auth.id}`)
     setSiswa(response.data)
+
+    const responseTwo = await axios.get(
+      `http://localhost:5000/jadwal/total/siswa/${response.data.id}`,
+    )
+    setJadwalTotal(responseTwo.data)
+
+    const responseThree = await axios.get(
+      `http://localhost:5000/nilai/sempurna/${response.data.id}`,
+    )
+    setNilaiSem(responseThree.data)
   }
 
   return (
@@ -112,42 +125,16 @@ const Dashboard = () => {
 
       <div className="three-graph row g-0">
         <div
-          className="col-12 col-md-4 text-white"
-          data-aos="fade-up"
-          data-aos-easing="ease-in-sine"
-          data-aos-duration="300"
-        >
-          <div className="my-sm-3 m-md-3 ms-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
-            <div className="position-relative" style={{ zIndex: 10 }}>
-              <p className="mb-0">Nilai Sempurna</p>
-              <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
-                12
-              </h1>
-            </div>
-            <div
-              className="square-left me-2 position-absolute"
-              style={{
-                top: 0,
-                right: '20px',
-                width: '40px',
-                height: '90px',
-                backgroundColor: 'var(--purple-dark)',
-                borderRadius: '0 0 50px 0',
-              }}
-            />
-          </div>
-        </div>
-        <div
-          className="col-12 col-md-4 text-white"
+          className="col-12 col-md-6 text-white"
           data-aos="fade-up"
           data-aos-easing="ease-in-sine"
           data-aos-duration="300"
         >
           <div className="my-3 p-2 bg-purple rounded-15 position-relative overflow-hidden">
             <div className="position-relative" style={{ zIndex: 10 }}>
-              <p className="mb-0">Jadwal Terselesaikan</p>
+              <p className="mb-0">Nilai Sempurna</p>
               <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
-                12
+                {nilaiSem}
               </h1>
             </div>
             <div
@@ -175,16 +162,16 @@ const Dashboard = () => {
           </div>
         </div>
         <div
-          className="col-12 col-md-4 text-white"
+          className="col-12 col-md-6 text-white"
           data-aos="fade-up"
           data-aos-easing="ease-in-sine"
           data-aos-duration="300"
         >
           <div className="my-sm-3 m-md-3 me-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
             <div className="position-relative" style={{ zIndex: 10 }}>
-              <p className="mb-0">Jadwal akan dimulai</p>
+              <p className="mb-0">Jadwal diikuti</p>
               <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
-                12
+                {jadwalTotal}
               </h1>
             </div>
             <div
@@ -219,16 +206,6 @@ const Dashboard = () => {
             <CCard className="mb-4 rounded-15 mt-2" style={{ maxHeight: '400px' }}>
               <CCardHeader className="d-flex align-items-center justify-content-between">
                 <p className="mb-0">Siswa mengambil jadwal</p>
-                <CDropdown>
-                  <CDropdownToggle href="#" color="purple" className="rounded-15">
-                    Tanggal
-                  </CDropdownToggle>
-                  <CDropdownMenu>
-                    <CDropdownItem href="#">5 Hari lalu</CDropdownItem>
-                    <CDropdownItem href="#">10 Hari lalu</CDropdownItem>
-                    <CDropdownItem href="#">20 Hari lalu</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
               </CCardHeader>
               <CCardBody>
                 <CChartBar

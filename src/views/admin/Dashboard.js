@@ -19,6 +19,9 @@ import axios from 'axios'
 const Dashboard = () => {
   const jadwalDiambil = [12, 20, 32, 50, 32]
   const jadwalSelesai = [22, 10, 12, 31, 8]
+  const [jadwal, setJadwal] = useState(0)
+  const [guru, setGuru] = useState(0)
+  const [siswa, setSiswa] = useState(0)
 
   const [admin, setAdmin] = useState([])
   const auth = useSelector((state) => state.auth)
@@ -33,6 +36,15 @@ const Dashboard = () => {
   const getAdmin = async () => {
     const response = await axios.get(`http://localhost:5000/admin/user-id/${auth.id}`)
     setAdmin(response.data)
+
+    const totalJadwal = await axios.get('http://localhost:5000/jadwal/total')
+    setJadwal(totalJadwal.data)
+
+    const totalGuru = await axios.get('http://localhost:5000/guru/total')
+    setGuru(totalGuru.data)
+
+    const totalSiswa = await axios.get('http://localhost:5000/siswa/total')
+    setSiswa(totalSiswa.data)
   }
 
   return (
@@ -122,7 +134,7 @@ const Dashboard = () => {
             <div className="position-relative" style={{ zIndex: 10 }}>
               <p className="mb-0">Total Jadwal</p>
               <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
-                12
+                {jadwal}
               </h1>
             </div>
             <div
@@ -148,7 +160,7 @@ const Dashboard = () => {
             <div className="position-relative" style={{ zIndex: 10 }}>
               <p className="mb-0">Total Guru</p>
               <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
-                12
+                {guru}
               </h1>
             </div>
             <div
@@ -185,7 +197,7 @@ const Dashboard = () => {
             <div className="position-relative" style={{ zIndex: 10 }}>
               <p className="mb-0">Total Siswa</p>
               <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
-                12
+                {siswa}
               </h1>
             </div>
             <div
@@ -220,16 +232,6 @@ const Dashboard = () => {
             <CCard className="mb-4 rounded-15" style={{ maxHeight: '400px' }}>
               <CCardHeader className="d-flex align-items-center justify-content-between">
                 <p className="mb-0">Siswa mengambil jadwal</p>
-                <CDropdown>
-                  <CDropdownToggle color="purple" className="rounded-15">
-                    Hari
-                  </CDropdownToggle>
-                  <CDropdownMenu>
-                    <CDropdownItem href="#">5 Hari terakhir</CDropdownItem>
-                    <CDropdownItem href="#">10 Hari terakhir</CDropdownItem>
-                    <CDropdownItem href="#">30 Hari terakhir</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
               </CCardHeader>
               <CCardBody>
                 <CChartBar

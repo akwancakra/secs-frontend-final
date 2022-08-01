@@ -106,8 +106,8 @@
 /* STYLING DAFTAR JADWAL */
 
 .daftar-input .select2 {
-    min-width: 150px;
-    width: 150px;
+    min-width: 200px;
+    width: 200px;
     max-width: 150px;
 }
 
@@ -130,6 +130,7 @@
     }
     .daftar-input .select2 {
         margin-bottom: 10px;
+        min-width: fit-content;
         width: 100%;
         max-width: none;
     }

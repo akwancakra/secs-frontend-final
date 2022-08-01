@@ -1,6 +1,5 @@
-import { CAlert, CButton, CForm, CFormInput, CPagination, CPaginationItem } from '@coreui/react'
+import { CAlert, CButton, CForm, CFormInput } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
 import Select from 'react-select'
 import { BannerMedium, JadwalCard } from 'src/components'
 import AOS from 'aos'
@@ -9,11 +8,13 @@ import axios from 'axios'
 
 const Daftar = () => {
   const [jadwals, setJadwals] = useState([])
-  const [tanggal, setTanggal] = useState('')
-  const [guru, setGuru] = useState('')
-  const [materi, setMateri] = useState('')
-  const [search, setSearch] = useState('')
-  const [msg, setMsg] = useState('')
+  const [guru, setGuru] = useState([])
+  const [materi, setMateri] = useState([])
+
+  const [searchVal, setSearchVal] = useState('')
+  const [guruVal, setGuruVal] = useState('')
+  const [tanggalVal, setTanggalVal] = useState('')
+  const [materiVal, setMateriVal] = useState('')
 
   useEffect(() => {
     document.title = 'Daftar Jadwal | Aplis'
@@ -26,36 +27,46 @@ const Daftar = () => {
     await axios.get('http://localhost:5000/jadwal/data').then((result) => {
       setJadwals(result.data)
     })
+
+    const response = await axios.get('http://localhost:5000/guru/data')
+    setGuru(
+      response.data.map((d) => ({
+        value: d.id,
+        label: `${d.nama} - ${d.mataPelajaran.nama}`,
+      })),
+    )
+
+    const responseTwo = await axios.get('http://localhost:5000/mata-pelajaran/data')
+    setMateri(
+      responseTwo.data.map((d) => ({
+        value: d.nama,
+        label: d.nama,
+      })),
+    )
   }
 
   const banner = { title: 'Daftar Jadwal', text: 'Berikut ini adalah daftar jadwal yang ada.' }
 
-  const jadwalData = [
-    { value: 1, label: 'Matematika - 20 Juli 2022' },
-    { value: 2, label: 'Sastra Arab - 22 Juli 2022' },
-    { value: 3, label: 'Penjas - 20 Juli 2022' },
-  ]
-
-  const guruData = [
-    { value: 1, label: 'Prof. H. Naiman' },
-    { value: 2, label: 'Syukri S.pd' },
-    { value: 3, label: 'Maman Sukarman' },
-  ]
-
   const handleSearch = async (e) => {
     e.preventDefault()
 
-    console.log(search, materi, guru, tanggal)
-    console.log(
-      `http://localhost:5000/jadwal/main?search=` +
-        search +
-        `&materi=` +
-        materi +
-        `&guru=` +
-        guru +
-        `&tanggal=` +
-        tanggal,
+    const response = await axios.get(
+      `http://localhost:5000/jadwal?ruang=${searchVal}&guru=${guruVal}&matpel=${materiVal}&tanggal=${tanggalVal}`,
     )
+    setJadwals(response.data)
+    console.log(
+      `http://localhost:5000/jadwal?ruang=${searchVal}&guru=${guruVal}&matpel=${materiVal}&tanggal=${tanggalVal}`,
+    )
+  }
+
+  const clearSearch = async () => {
+    setGuruVal('')
+    setTanggalVal('')
+    setMateriVal('')
+    setSearchVal('')
+
+    const response = await axios.get(`http://localhost:5000/jadwal?ruang=&guru=&matpel=&tanggal=`)
+    setJadwals(response.data)
   }
 
   return (
@@ -82,9 +93,9 @@ const Daftar = () => {
                 type="text"
                 id="search"
                 name="search"
-                placeholder="Cari berdasarkan nama alumni, nis, angkatan, atau jurusan..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                placeholder="Cari berdasarkan ruangan..."
+                value={searchVal}
+                onChange={(e) => setSearchVal(e.target.value)}
               />
             </div>
           </div>
@@ -96,26 +107,34 @@ const Daftar = () => {
             name="tanggal"
             className="rounded-15 me-2 mb-2 mb-md-0 col-12 col-md-auto"
             style={{ maxWidth: '160px' }}
-            values={tanggal}
-            onChange={(e) => setTanggal(e.target.value)}
+            values={tanggalVal}
+            onChange={(e) => setTanggalVal(e.target.value)}
           />
           <Select
             placeholder="Guru"
             name="guru"
-            options={guruData}
+            options={guru}
             className="select2 rounded-15 col-12 col-md-auto me-2"
-            values={guru}
-            onChange={(e) => setGuru(e.value)}
+            // values={guruVal}
+            // value={guru.filter((option) => option.value === guruVal)}
+            onChange={(e) => setGuruVal(e.value)}
           />
           <Select
             placeholder="Materi"
             name="materi"
-            options={jadwalData}
+            options={materi}
             className="select2 rounded-15 col-12 col-md-auto me-2"
-            values={materi}
-            onChange={(e) => setMateri(e.value)}
+            values={materiVal}
+            onChange={(e) => setMateriVal(e.value)}
           />
-          <button type="submit" className="btn btn-soft-purple me-1 rounded-15 col-12 col-md-auto">
+          <button
+            type="button"
+            className="btn btn-danger me-1 mb-2 mb-md-0 rounded-15 col-12 col-md-auto"
+            onClick={() => clearSearch()}
+          >
+            Reset <i className="align-middle bi bi-x-circle"></i>
+          </button>
+          <button type="submit" className="btn btn-purple me-1 rounded-15 col-12 col-md-auto">
             Filter <i className="align-middle bi bi-funnel-fill"></i>
           </button>
         </div>

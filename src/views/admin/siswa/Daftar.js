@@ -8,6 +8,7 @@ import 'aos/dist/aos.css'
 import axios from 'axios'
 
 const Daftar = () => {
+  const [search, setSearch] = useState('')
   const [siswas, setSiswas] = useState([])
   const auth = useSelector((state) => state.auth)
 
@@ -25,6 +26,13 @@ const Daftar = () => {
     setSiswas(response.data)
   }
 
+  const searchData = async (e) => {
+    e.preventDefault()
+
+    const resposne = await axios.get(`http://localhost:5000/api/siswa?search=${search}`)
+    setSiswas(resposne.data)
+  }
+
   return (
     <div>
       <BannerMedium data={banner} />
@@ -35,15 +43,20 @@ const Daftar = () => {
         data-aos-easing="ease-in-sine"
         data-aos-duration="300"
       >
-        <CForm className="position-relative d-flex justify-content-center">
+        <CForm
+          className="position-relative d-flex justify-content-center"
+          onSubmit={(e) => searchData(e)}
+        >
           <div className="input-group mb-3">
-            <CButton color="primary" className="input-group-text btn-search">
+            <CButton type="submit" color="primary" className="input-group-text btn-search">
               <i className="bx bx-search" />
             </CButton>
             <CFormInput
               type="text"
               id="search"
               name="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari berdasarkan nama, atau nis"
             />
           </div>

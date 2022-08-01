@@ -10,6 +10,7 @@ import 'src/assets/css/datatables.css'
 import axios from 'axios'
 
 const Daftar = () => {
+  const [search, setSearch] = useState([])
   const [datas, setDatas] = useState([])
 
   useEffect(() => {
@@ -87,6 +88,33 @@ const Daftar = () => {
     },
   ]
 
+  const SearchData = async (e) => {
+    e.preventDefault()
+
+    const resposne = await axios.get(`http://localhost:5000/api/matpel?search=${search}`)
+    setDatas(
+      resposne.data.map((d, index) => ({
+        id: d.id,
+        number: index + 1,
+        nama: d.nama,
+        aksi: (
+          <>
+            <Link to={`/ad/matpel/ubah/${d.id}`} className="btn btn-warning rounded-15 me-1">
+              Ubah
+            </Link>
+            <button
+              type="button"
+              className="btn btn-danger rounded-15"
+              onClick={() => swalDisplay(d.id)}
+            >
+              Hapus
+            </button>
+          </>
+        ),
+      })),
+    )
+  }
+
   return (
     <div>
       <BannerMedium data={banner} />
@@ -97,15 +125,20 @@ const Daftar = () => {
         data-aos-easing="ease-in-sine"
         data-aos-duration="300"
       >
-        <CForm className="position-relative d-flex justify-content-center">
+        <CForm
+          className="position-relative d-flex justify-content-center"
+          onSubmit={(e) => SearchData(e)}
+        >
           <div className="input-group mb-3">
-            <CButton color="primary" className="input-group-text btn-search">
+            <CButton type="submit" color="primary" className="input-group-text btn-search">
               <i className="bx bx-search" />
             </CButton>
             <CFormInput
               type="text"
               id="search"
               name="search"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
               placeholder="Cari berdasarkan nama mata pelajaran"
             />
           </div>

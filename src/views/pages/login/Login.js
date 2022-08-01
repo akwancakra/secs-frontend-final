@@ -64,6 +64,7 @@ const Login = () => {
           progress: undefined,
         })
       })
+      setIsLoading(false)
       navigate('/ad/dashboard')
     } catch (error) {
       if (error.response) {

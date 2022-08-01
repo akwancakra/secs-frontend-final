@@ -23,6 +23,7 @@ import swal from 'sweetalert'
 import axios from 'axios'
 
 const Daftar = () => {
+  const [search, setSearch] = useState('')
   const [isLoading, setIsLoading] = useState([])
   const [guru, setGuru] = useState([])
   const [jadwals, setJadwals] = useState([])
@@ -80,6 +81,22 @@ const Daftar = () => {
     setIsLoading(false)
   }
 
+  const SearchData = async (e) => {
+    e.preventDefault()
+
+    if (auth.role === 2) {
+      const resposne = await axios.get(
+        `http://localhost:5000/guru/1/jadwal-search?search=${search}`,
+      )
+      setJadwals(resposne.data.jadwal)
+    } else if (auth.role === 3) {
+      const resposne = await axios.get(
+        `http://localhost:5000/siswa/${siswa.id}/jadwal-search?search=${search}`,
+      )
+      setJadwals(resposne.data.jadwal)
+    }
+  }
+
   return (
     <div>
       <BannerMedium data={banner} />
@@ -90,7 +107,10 @@ const Daftar = () => {
         data-aos-easing="ease-in-sine"
         data-aos-duration="300"
       >
-        <CForm className="position-relative d-flex justify-content-center">
+        <CForm
+          className="position-relative d-flex justify-content-center"
+          onSubmit={(e) => SearchData(e)}
+        >
           <div className="input-group mb-3">
             <CButton color="primary" className="input-group-text btn-search">
               <i className="bx bx-search" />
@@ -99,7 +119,9 @@ const Daftar = () => {
               type="text"
               id="search"
               name="search"
-              placeholder="Cari berdasarkan nama jadwal, atau ruangan"
+              value={search}
+              onChange={(e) => setSearch(e.target.value)}
+              placeholder="Cari berdasarkan nama guru, mata pelajaran, atau ruangan"
             />
           </div>
         </CForm>
@@ -255,26 +277,6 @@ const Daftar = () => {
             </CTableBody>
           </CTable>
         )}
-
-        {/* <div className="d-flex justify-content-end">
-          <CPagination>
-            <Link to="#" className="page-link cursor-pointer">
-              Previous
-            </Link>
-            <Link to="#" className="page-link cursor-pointer">
-              1
-            </Link>
-            <Link to="#" className="page-link cursor-pointer">
-              2
-            </Link>
-            <Link to="#" className="page-link cursor-pointer">
-              3
-            </Link>
-            <Link to="#" className="page-link cursor-pointer">
-              Next
-            </Link>
-          </CPagination>
-        </div> */}
       </div>
     </div>
   )

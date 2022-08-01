@@ -20,6 +20,8 @@ const Dashboard = () => {
   const jadwalDiambil = [12, 20, 32, 50, 32]
   const jadwalSelesai = [22, 10, 12, 31, 8]
 
+  const [jadwal, setJadwal] = useState('')
+
   const [guru, setGuru] = useState([])
   const auth = useSelector((state) => state.auth)
 
@@ -33,6 +35,11 @@ const Dashboard = () => {
   const getGuru = async () => {
     const response = await axios.get(`http://localhost:5000/guru/user-id/${auth.id}`)
     setGuru(response.data)
+
+    const responseTwo = await axios.get(
+      `http://localhost:5000/jadwal/total/guru/${response.data.id}`,
+    )
+    setJadwal(responseTwo.data)
   }
 
   return (
@@ -113,16 +120,16 @@ const Dashboard = () => {
 
       <div className="three-graph row g-0">
         <div
-          className="col-12 col-md-4 text-white"
+          className="col-12 text-white"
           data-aos="fade-up"
           data-aos-easing="ease-in-sine"
           data-aos-duration="300"
         >
-          <div className="my-sm-3 m-md-3 mt-3 ms-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
+          <div className="my-sm-3 mt-3 ms-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
             <div className="position-relative" style={{ zIndex: 10 }}>
               <p className="mb-0">Total Jadwal</p>
               <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
-                12
+                {jadwal}
               </h1>
             </div>
             <div
@@ -133,80 +140,6 @@ const Dashboard = () => {
                 width: '40px',
                 height: '90px',
                 backgroundColor: 'var(--purple-dark)',
-                borderRadius: '0 0 50px 0',
-              }}
-            />
-          </div>
-        </div>
-        <div
-          className="col-12 col-md-4 text-white"
-          data-aos="fade-up"
-          data-aos-easing="ease-in-sine"
-          data-aos-duration="300"
-        >
-          <div className="my-3 p-2 bg-purple rounded-15 position-relative overflow-hidden">
-            <div className="position-relative" style={{ zIndex: 10 }}>
-              <p className="mb-0">Jadwal Selesai</p>
-              <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
-                12
-              </h1>
-            </div>
-            <div
-              className="dot position-absolute"
-              style={{
-                top: '10px',
-                right: '20px',
-                width: '50px',
-                height: '50px',
-                backgroundColor: 'var(--purple-dark)',
-                borderRadius: '100%',
-              }}
-            />
-            <div
-              className="dot position-absolute"
-              style={{
-                top: '60px',
-                right: '20px',
-                width: '50px',
-                height: '50px',
-                backgroundColor: 'var(--purple-dark)',
-                borderRadius: '100%',
-              }}
-            />
-          </div>
-        </div>
-        <div
-          className="col-12 col-md-4 text-white"
-          data-aos="fade-up"
-          data-aos-easing="ease-in-sine"
-          data-aos-duration="300"
-        >
-          <div className="my-sm-3 m-md-3 mb-3 me-0 p-2 bg-purple rounded-15 position-relative overflow-hidden">
-            <div className="position-relative" style={{ zIndex: 10 }}>
-              <p className="mb-0">Jadwal Aktif</p>
-              <h1 className="fw-bold mb-0 py-3" style={{ fontSize: '58px' }}>
-                12
-              </h1>
-            </div>
-            <div
-              className="square-left me-2 position-absolute"
-              style={{
-                top: 0,
-                right: '20px',
-                width: '40px',
-                height: '90px',
-                backgroundColor: 'var(--purple-dark)',
-                borderRadius: '0 0 50px 0',
-              }}
-            />
-            <div
-              className="square-left me-2 position-absolute"
-              style={{
-                top: 0,
-                right: '60px',
-                width: '40px',
-                height: '70px',
-                backgroundColor: 'var(--purple-main-hover)',
                 borderRadius: '0 0 50px 0',
               }}
             />
@@ -220,16 +153,6 @@ const Dashboard = () => {
             <CCard className="mb-4 rounded-15" style={{ maxHeight: '400px' }}>
               <CCardHeader className="d-flex align-items-center justify-content-between">
                 <p className="mb-0">Siswa mengambil jadwal</p>
-                <CDropdown>
-                  <CDropdownToggle href="#" color="purple" className="rounded-15">
-                    Tanggal
-                  </CDropdownToggle>
-                  <CDropdownMenu>
-                    <CDropdownItem href="#">5 Hari lalu</CDropdownItem>
-                    <CDropdownItem href="#">10 Hari lalu</CDropdownItem>
-                    <CDropdownItem href="#">20 Hari lalu</CDropdownItem>
-                  </CDropdownMenu>
-                </CDropdown>
               </CCardHeader>
               <CCardBody>
                 <CChartBar
