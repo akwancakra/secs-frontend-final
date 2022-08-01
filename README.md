@@ -3,8 +3,8 @@
 Anggota
 
 <ul>
-  <li>Akwan Cakra Tajimalela</li>
-  <li>Dandy Darmawan Alyahmin</li>
+  <li>Akwan Cakra Tajimalela (FE)</li>
+  <li>Dandy Darmawan Alyahmin (BE)</li>
 </ul>
 
 ## Apa ini?
