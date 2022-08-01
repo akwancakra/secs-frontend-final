@@ -4,7 +4,7 @@ Anggota
 
 <ul>
   <li>Akwan Cakra Tajimalela</li>
-  <li>Dandy Alyahmin</li>
+  <li>Dandy Darmawan Alyahmin</li>
 </ul>
 
 ## Apa ini?
