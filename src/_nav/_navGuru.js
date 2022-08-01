@@ -60,11 +60,6 @@ _navGuru = [
         name: 'Tambah Nilai',
         to: '/nilai/tambah',
       },
-      {
-        component: CNavItem,
-        name: 'Tambah Nilai Jadwal',
-        to: '/nilai/tambah-all',
-      },
     ],
   },
 ]

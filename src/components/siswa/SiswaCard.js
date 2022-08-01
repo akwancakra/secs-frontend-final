@@ -1,27 +1,44 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
-import { Link } from 'react-router-dom'
-import defaultBanner from 'src/assets/images/banner-default.jpg'
+import { Link, useNavigate } from 'react-router-dom'
+import defaultBanner from 'src/assets/images/avatars/siswa.png'
 import swal from 'sweetalert'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import axios from 'axios'
 
 const SiswaCard = ({ siswa, auth }) => {
+  const navigate = useNavigate()
   AOS.init()
   AOS.refresh()
 
   const swalDisplay = async (id) => {
     swal({
       title: 'Apakah anda yakin?',
-      text: 'Data yang anda hapus tidak bisa dipulihkan kembali!' + id,
+      text: 'Data yang anda hapus tidak bisa dipulihkan kembali!',
       icon: 'warning',
       buttons: true,
       dangerMode: true,
-    }).then((willDelete) => {
+    }).then(async (willDelete) => {
       if (willDelete) {
-        swal('Data sukses dihapus!', {
-          icon: 'success',
-        })
+        try {
+          await axios.delete(`http://localhost:5000/siswa/delete/${id}`)
+          swal({
+            title: 'Sukses',
+            text: 'Data berhasil dihapus!',
+            icon: 'success',
+          }).then(() => {
+            navigate('/ad/siswa/tambah')
+          })
+        } catch (error) {
+          if (error.response) {
+            swal({
+              title: 'Gagal',
+              text: error.response.data.message,
+              icon: 'error',
+            })
+          }
+        }
       }
     })
   }
@@ -29,7 +46,7 @@ const SiswaCard = ({ siswa, auth }) => {
   return (
     <div className="col-12 col-md-4">
       <div
-        className="jadwal-card preview-wrapper py-2"
+        className="jadwal-card preview-wrapper py-2 overflow-hidden"
         data-aos="fade-up"
         data-aos-easing="ease-in-sine"
         data-aos-duration="500"
@@ -40,7 +57,10 @@ const SiswaCard = ({ siswa, auth }) => {
         >
           <div
             className="head px-3 py-2"
-            style={{ backgroundImage: `url(${defaultBanner})`, minHeight: '250px' }}
+            style={{
+              backgroundImage: `url(${siswa.photo !== 'siswa.png' ? siswa.photo : defaultBanner})`,
+              minHeight: '250px',
+            }}
           ></div>
           <div className="over-head"></div>
           <div className="contents px-3 row">
@@ -72,7 +92,7 @@ const SiswaCard = ({ siswa, auth }) => {
               </div>
               <h4 className="fw-bold">{siswa.jenis_kelamin}</h4>
             </div>
-            {auth == 'admin' ? (
+            {auth === 1 && (
               <div className="col-12 mb-3 d-flex">
                 <Link
                   to={`/ad/siswa/ubah/${siswa.id}`}
@@ -88,8 +108,6 @@ const SiswaCard = ({ siswa, auth }) => {
                   Hapus
                 </button>
               </div>
-            ) : (
-              ''
             )}
           </div>
         </div>

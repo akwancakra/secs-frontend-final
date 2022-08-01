@@ -5,6 +5,7 @@ import {
   CFormInput,
   CPagination,
   CPaginationItem,
+  CSpinner,
   CTable,
   CTableBody,
   CTableDataCell,
@@ -12,56 +13,71 @@ import {
   CTableHeaderCell,
   CTableRow,
 } from '@coreui/react'
-import React, { useEffect } from 'react'
-import { Link } from 'react-router-dom'
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate } from 'react-router-dom'
 import { BannerMedium } from 'src/components'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { useSelector } from 'react-redux'
 import swal from 'sweetalert'
+import axios from 'axios'
 
 const Daftar = () => {
+  const [isLoading, setIsLoading] = useState([])
+  const [guru, setGuru] = useState([])
+  const [jadwals, setJadwals] = useState([])
+  const [siswa, setSiswa] = useState([])
   const auth = useSelector((state) => state.auth)
+  const navigate = useNavigate()
+
   const banner = {
     title: 'Daftar Jadwal',
     text: 'Berikut ini adalah daftar jadwal yang anda miliki.',
   }
 
-  const jadwals = [
-    {
-      id: 1,
-      ruangan: 'RPL 1',
-      tanggal: '2022-07-21 00:00:00.000',
-      dosen: { nama: 'Prof. H. Naimin', matpel: { id: 1, nama: 'Matematika' } },
-    },
-    {
-      id: 2,
-      ruangan: 'TKJ 2',
-      tanggal: '2022-07-28 00:00:00.000',
-      dosen: { nama: 'Prof. H. Naimin', matpel: { id: 1, nama: 'Matematika' } },
-    },
-  ]
-
   useEffect(() => {
     document.title = 'Jadwal Saya | Aplis'
     AOS.init()
     AOS.refresh()
+    setIsLoading(true)
+    getJadwals()
   }, [])
 
   const swalDisplay = async (id) => {
     swal({
       title: 'Apakah anda yakin?',
-      text: 'Data yang anda hapus tidak bisa dipulihkan kembali!' + id,
+      text: 'Data yang anda hapus tidak bisa dipulihkan kembali!',
       icon: 'warning',
       buttons: true,
       dangerMode: true,
-    }).then((willDelete) => {
+    }).then(async (willDelete) => {
       if (willDelete) {
-        swal('Data sukses dihapus!', {
+        await axios.delete(`http://localhost:5000/jadwal/delete/${id}`)
+        swal({
+          title: 'Sukses',
+          text: 'Data berhasil dihapus!',
           icon: 'success',
+        }).then(() => {
+          getJadwals()
         })
       }
     })
+  }
+
+  const getJadwals = async () => {
+    if (auth.role === 2) {
+      const response = await axios.get(`http://localhost:5000/guru/user-id/${auth.id}`)
+      const responseTwo = await axios.get(`http://localhost:5000/guru/${response.data.id}/jadwal`)
+      setGuru(responseTwo.data)
+      setJadwals(responseTwo.data.jadwal)
+    } else if (auth.role === 3) {
+      const response = await axios.get(`http://localhost:5000/siswa/user-id/${auth.id}`)
+      setSiswa(response.data)
+
+      const responseTwo = await axios.get(`http://localhost:5000/siswa/${response.data.id}/jadwal`)
+      setJadwals(responseTwo.data.jadwal)
+    }
+    setIsLoading(false)
   }
 
   return (
@@ -89,6 +105,25 @@ const Daftar = () => {
         </CForm>
       </div>
 
+      {isLoading ? (
+        <div
+          className="d-flex justify-content-center align-items-center position-fixed"
+          style={{
+            zIndex: 99,
+            width: '100vw',
+          }}
+        >
+          <div
+            className="rounded-15 d-flex justify-content-center align-items-center"
+            style={{ backgroundColor: 'var(--white)', width: '200px', height: '200px' }}
+          >
+            <CSpinner color="purple" style={{ height: '150px', width: '150px' }} />
+          </div>
+        </div>
+      ) : (
+        ''
+      )}
+
       <div
         className="d-flex mb-3"
         data-aos="fade-up"
@@ -106,7 +141,7 @@ const Daftar = () => {
         data-aos-easing="ease-in-sine"
         data-aos-duration="600"
       >
-        {auth.account.role === 'guru' && (
+        {auth.role === 2 && (
           <CTable hover borderless className="bg-white rounded-15">
             <CTableHead>
               <CTableRow>
@@ -128,22 +163,24 @@ const Daftar = () => {
               </CTableRow>
             </CTableHead>
             <CTableBody>
-              {/* {matpels > 0 ? ( */}
-              {jadwals ? (
-                jadwals.map((jadwal, index) => (
+              {siswa ? (
+                jadwals.map((jad, index) => (
                   // eslint-disable-next-line react/jsx-key
-                  <CTableRow className="align-middle" key={jadwal.id}>
+                  <CTableRow className="align-middle" key={jad.id}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                    <CTableDataCell>{jadwal.dosen.matpel.nama}</CTableDataCell>
-                    <CTableDataCell>{jadwal.ruangan}</CTableDataCell>
-                    <CTableDataCell>{new Date(jadwal.tanggal).toLocaleString()}</CTableDataCell>
+                    <CTableDataCell>{guru.mataPelajaran.nama}</CTableDataCell>
+                    <CTableDataCell>{jad.ruang}</CTableDataCell>
+                    <CTableDataCell>{new Date(jad.tanggal).toLocaleString()}</CTableDataCell>
                     <CTableDataCell>
-                      <Link to="/jadwal/1" className="btn btn-soft-purple rounded-15 me-1">
+                      <Link
+                        to={`/jadwal/${jad.id}`}
+                        className="btn btn-soft-purple rounded-15 me-1"
+                      >
                         Detil
                       </Link>
                       <button
                         className="btn btn-danger rounded-15"
-                        onClick={() => swalDisplay(jadwal.id)}
+                        onClick={() => swalDisplay(jad.id)}
                       >
                         Hapus
                       </button>
@@ -154,7 +191,7 @@ const Daftar = () => {
                 <CTableRow className="align-middle">
                   <CTableDataCell colSpan="5">
                     <CAlert color="primary" className="rounded-15">
-                      Tidak ada data <strong>Mata pelajaran</strong>
+                      Tidak ada data <strong>Jadwal</strong>
                     </CAlert>
                   </CTableDataCell>
                 </CTableRow>
@@ -162,7 +199,7 @@ const Daftar = () => {
             </CTableBody>
           </CTable>
         )}
-        {auth.account.role === 'siswa' && (
+        {auth.role === 3 && (
           <CTable hover borderless className="bg-white rounded-15">
             <CTableHead>
               <CTableRow>
@@ -187,34 +224,30 @@ const Daftar = () => {
               </CTableRow>
             </CTableHead>
             <CTableBody>
-              {/* {matpels > 0 ? ( */}
-              {jadwals ? (
-                jadwals.map((jadwal, index) => (
+              {siswa ? (
+                jadwals.map((jad, index) => (
                   // eslint-disable-next-line react/jsx-key
-                  <CTableRow className="align-middle" key={jadwal.id}>
+                  <CTableRow className="align-middle" key={jad.id}>
                     <CTableHeaderCell scope="row">{index + 1}</CTableHeaderCell>
-                    <CTableDataCell>{jadwal.dosen.nama}</CTableDataCell>
-                    <CTableDataCell>{jadwal.dosen.matpel.nama}</CTableDataCell>
-                    <CTableDataCell>{jadwal.ruangan}</CTableDataCell>
-                    <CTableDataCell>{new Date(jadwal.tanggal).toLocaleString()}</CTableDataCell>
+                    <CTableDataCell>{jad.guru.nama}</CTableDataCell>
+                    <CTableDataCell>{jad.guru.mataPelajaran.nama}</CTableDataCell>
+                    <CTableDataCell>{jad.ruang}</CTableDataCell>
+                    <CTableDataCell>{new Date(jad.tanggal).toLocaleString()}</CTableDataCell>
                     <CTableDataCell>
-                      <Link to="/jadwal/1" className="btn btn-soft-purple rounded-15 me-1">
+                      <Link
+                        to={`/jadwal/${jad.id}`}
+                        className="btn btn-soft-purple rounded-15 me-1"
+                      >
                         Detil
                       </Link>
-                      <button
-                        className="btn btn-danger rounded-15"
-                        onClick={() => swalDisplay(jadwal.id)}
-                      >
-                        Hapus
-                      </button>
                     </CTableDataCell>
                   </CTableRow>
                 ))
               ) : (
                 <CTableRow className="align-middle">
-                  <CTableDataCell colSpan="5">
+                  <CTableDataCell colSpan="6">
                     <CAlert color="primary" className="rounded-15">
-                      Tidak ada data <strong>Mata pelajaran</strong>
+                      Tidak ada data <strong>Jadwal</strong>
                     </CAlert>
                   </CTableDataCell>
                 </CTableRow>
@@ -223,7 +256,7 @@ const Daftar = () => {
           </CTable>
         )}
 
-        <div className="d-flex justify-content-end">
+        {/* <div className="d-flex justify-content-end">
           <CPagination>
             <Link to="#" className="page-link cursor-pointer">
               Previous
@@ -241,7 +274,7 @@ const Daftar = () => {
               Next
             </Link>
           </CPagination>
-        </div>
+        </div> */}
       </div>
     </div>
   )

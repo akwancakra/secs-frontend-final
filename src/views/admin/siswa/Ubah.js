@@ -1,4 +1,4 @@
-import { CAlert, CButton, CForm } from '@coreui/react'
+import { CAlert, CForm, CSpinner } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Select from 'react-select'
@@ -10,10 +10,16 @@ import * as Yup from 'yup'
 import { BannerMedium } from 'src/components'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Ubah = () => {
   const [msg, setMsg] = useState('')
-  const [files, setFile] = useState([])
+  const [isLoading, setIsLoading] = useState(false)
+  const [siswa, setSiswa] = useState([])
+  const [files, setFiles] = useState([])
+  const [preview, setPreview] = useState('')
+
   const { id } = useParams()
   const navigate = useNavigate()
 
@@ -31,83 +37,68 @@ const Ubah = () => {
     { value: 'Perempuan', label: 'Perempuan' },
   ]
 
-  const siswa = {
-    id: 1,
-    nama: 'Akwan Cakra Tajimalela',
-    nis: 192010382,
-    agama: 'Islam',
-    jenis_kelamin: 'Laki-laki',
+  const uploadImage = (e) => {
+    const image = e.target.files[0]
+    if (!image.name.match(/\.(jpg|jpeg|png)$/)) {
+      toast.error('Ekstensi gambar harus .png, .jpg or .jpeg', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      return false
+    }
+    if (image.size >= 1000000) {
+      toast.error('Gambar tidak boleh lebih besar dari 1MB', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      return false
+    }
+    setFiles(image)
+    setPreview(URL.createObjectURL(image))
   }
 
   useEffect(() => {
     document.title = 'Ubah Siswa | Aplis'
     AOS.init()
     AOS.refresh()
+    getData()
   }, [])
 
   const banner = { title: 'Ubah Siswa', text: '' }
-  const { getRootProps, getInputProps, fileRejections, acceptedFiles } = useDropzone({
-    accept: {
-      'image/*': ['.jpeg', '.jpg', '.png'],
-    },
-    multiple: false,
-    maxSize: 1048576,
-    onDrop: (acceptedFiles) => {
-      setFile(
-        acceptedFiles.map((file) =>
-          Object.assign(file, {
-            preview: URL.createObjectURL(file),
-          }),
-        ),
-      )
-    },
-  })
 
-  const acceptedFileItems = acceptedFiles.map((file) => (
-    // eslint-disable-next-line react/jsx-key
-    <p className="mb-0">
-      {file.path} - {file.size} bytes
-    </p>
-  ))
-
-  const fileRejectionItems = fileRejections.map(({ file, errors }) => (
-    // eslint-disable-next-line react/jsx-key
-    <p className="mb-0">
-      {file.path} - {file.size} bytes
-      <ul>
-        {errors.map((e) => (
-          // eslint-disable-next-line react/jsx-key
-          <li>{e.message}</li>
-        ))}
-      </ul>
-    </p>
-  ))
-
-  const images = files.map((file) => (
-    <div className="rounded-15" key={file.name}>
-      <div>
-        <img
-          src={file.preview}
-          alt="Image Preview"
-          className="rounded-15 img-thumbnail"
-          style={{ maxHeight: '250px' }}
-        />
-      </div>
-    </div>
-  ))
-
-  const previewImg = files.map((file) => file.preview)
+  const getData = async () => {
+    const response = await axios.get(`http://localhost:5000/siswa/siswa-id/${id}`)
+    if (response.data == '') {
+      navigate('/siswa/main')
+    }
+    setPreview(response.data.photo)
+    setSiswa(response.data)
+    formik.setFieldValue('nama', response.data.nama)
+    formik.setFieldValue('nis', response.data.nis)
+    formik.setFieldValue('agama', response.data.agama)
+    formik.setFieldValue('jenis_kelamin', response.data.jenis_kelamin)
+  }
 
   const formik = useFormik({
     initialValues: {
-      nama: siswa.nama,
-      nis: siswa.nis,
-      agama: siswa.agama,
-      jenis_kelamin: siswa.jenis_kelamin,
+      nama: '',
+      nis: '',
+      agama: '',
+      jenis_kelamin: '',
       username: '',
       email: '',
       password: '',
-      password_confirm: '',
+      confPassword: '',
     },
     validationSchema: Yup.object({
       nama: Yup.string()
@@ -129,16 +120,73 @@ const Ubah = () => {
         .matches(/[A-Z]+/, 'Minimal 1 huruf besar!')
         .matches(/[@$!%*#?&]+/, 'Minimal 1 simbol!')
         .matches(/\d+/, 'Minimal 1 angka!'),
-      password_confirm: Yup.string().oneOf(
+      confPassword: Yup.string().oneOf(
         [Yup.ref('password'), null],
         'Password konfirmasi harus sesuai dengan password!',
       ),
     }),
     onSubmit: (values) => {
       // CARI EMAIL YANG SAMA, CARI NIS YANG SAMA
-      console.log(values, files)
+      UploadHandle(values)
     },
   })
+
+  const UploadHandle = async (value) => {
+    setIsLoading(true)
+    let urlUser = ''
+    if (value.email || value.username || (value.password && value.confPassword)) {
+      urlUser = `http://localhost:5000/user/update/${siswa.userId}`
+    }
+
+    try {
+      await axios.patch(
+        `http://localhost:5000/siswa/update/${id}`,
+        {
+          nama: value.nama,
+          nis: value.nis,
+          jenis_kelamin: value.jenis_kelamin,
+          agama: value.agama,
+          file: files,
+        },
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      )
+
+      if (urlUser !== '') {
+        await axios.patch(urlUser, value)
+      }
+
+      toast.success('Berhasil mengubah siswa!', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      setIsLoading(false)
+
+      navigate('/siswa/main')
+    } catch (error) {
+      if (error.response) {
+        setMsg(error.response.data.message)
+        toast.error(error.response.data.message, {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
+      }
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div>
@@ -155,6 +203,25 @@ const Ubah = () => {
           Kembali
         </Link>
       </div>
+
+      {isLoading ? (
+        <div
+          className="d-flex justify-content-center align-items-center position-fixed"
+          style={{
+            zIndex: 99,
+            width: '100vw',
+          }}
+        >
+          <div
+            className="rounded-15 d-flex justify-content-center align-items-center"
+            style={{ backgroundColor: 'var(--white)', width: '200px', height: '200px' }}
+          >
+            <CSpinner color="purple" style={{ height: '150px', width: '150px' }} size="lg" />
+          </div>
+        </div>
+      ) : (
+        ''
+      )}
 
       <div className="d-md-flex justify-content-around my-3">
         <div
@@ -174,7 +241,7 @@ const Ubah = () => {
           </div>
           {msg && (
             <CAlert color="danger" className="rounded-15">
-              {msg}
+              <i className="bi bi-exclamation-triangle-fill"></i> {msg}
             </CAlert>
           )}
           <CForm className="card-form" onSubmit={formik.handleSubmit}>
@@ -244,15 +311,28 @@ const Ubah = () => {
                 <small className="text-danger">{formik.errors.jenis_kelamin}</small>
               )}
             </div>
-            <label>Foto</label>
-            <div className="mb-3 rounded-15 input-drop" {...getRootProps()}>
-              <input {...getInputProps()} />
-              <p className="mb-0">Seret dan jatuhkan file Anda di sini.</p>
-              <i className="bi bi-card-image"></i>
+            <div className="mb-3">
+              <label className="form-label">Foto</label>
+              <input
+                className="form-control"
+                type="file"
+                name="files"
+                onChange={(e) => uploadImage(e)}
+              />
             </div>
-            <div>{acceptedFileItems}</div>
-            <div>{fileRejectionItems}</div>
-            <div>{images}</div>
+            <div className="img-preview">
+              <img
+                src={preview}
+                className="img-thumbnail rounded-15"
+                style={{
+                  width: '100%',
+                  height: '300px',
+                  objectFit: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundSize: 'cover',
+                }}
+              />
+            </div>
             <hr />
             <p className="fw-bold">Akun</p>
             <CAlert color="primary" className="rounded-15">
@@ -315,17 +395,15 @@ const Ubah = () => {
                 type="password"
                 className={
                   'form-control rounded-15' +
-                  (formik.errors.password_confirm && formik.touched.password_confirm
-                    ? ' is-invalid'
-                    : '')
+                  (formik.errors.confPassword && formik.touched.confPassword ? ' is-invalid' : '')
                 }
-                name="password_confirm"
+                name="confPassword"
                 placeholder="Konfirmasi Password"
-                value={formik.values.password_confirm}
+                value={formik.values.confPassword}
                 onChange={formik.handleChange}
               />
-              {formik.errors.password_confirm && formik.touched.password_confirm && (
-                <small className="text-danger">{formik.errors.password_confirm}</small>
+              {formik.errors.confPassword && formik.touched.confPassword && (
+                <small className="text-danger">{formik.errors.confPassword}</small>
               )}
             </div>
             <div className="d-flex justify-content-end">
@@ -355,7 +433,7 @@ const Ubah = () => {
             <div
               className="head px-3 py-2"
               style={{
-                backgroundImage: `url(${previewImg != '' ? previewImg : defaultBanner})`,
+                backgroundColor: `var(--purple-main)`,
                 minHeight: '250px',
               }}
             ></div>

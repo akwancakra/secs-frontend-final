@@ -8,7 +8,7 @@ const NotAuth = (props) => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (auth.isLogged === false) {
+    if (auth.isLogged == false) {
       navigate('/login')
     }
   }, []);

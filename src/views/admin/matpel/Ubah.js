@@ -1,28 +1,42 @@
 import { CAlert, CForm } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 // FORMIK
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { BannerMedium } from 'src/components'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import swal from 'sweetalert'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Ubah = () => {
+  const [isLoading, setIsLoading] = useState(false)
   const [msg, setMsg] = useState('')
 
-  const matpel = { id: 1, nama: 'Matematika' }
+  const navigate = useNavigate()
+  const { id } = useParams()
 
+  const banner = { title: 'Ubah Mata Pelajaran', text: '' }
   useEffect(() => {
     document.title = 'Ubah Mata Pelajaran | Aplis'
     AOS.init()
     AOS.refresh()
+    getData()
   }, [])
 
-  const banner = { title: 'Ubah Mata Pelajaran', text: '' }
+  const getData = async () => {
+    const response = await axios.get(`http://localhost:5000/mata-pelajaran/${id}`)
+    if (response.data == '') {
+      navigate('/ad/matpel/main')
+    }
+    formik.setFieldValue('nama', response.data.nama)
+  }
+
   const formik = useFormik({
     initialValues: {
-      nama: matpel.nama,
+      nama: '',
     },
     validationSchema: Yup.object({
       nama: Yup.string()
@@ -31,9 +45,38 @@ const Ubah = () => {
         .required('Nama Matpel wajib diisi!'),
     }),
     onSubmit: (values) => {
-      console.log(values)
+      HandleCreate(values)
     },
   })
+
+  const HandleCreate = async (values) => {
+    setIsLoading(true)
+    try {
+      await axios.patch(`http://localhost:5000/mata-pelajaran/${id}`, values)
+      toast.success('Berhasil mengubah mata pelajaran!', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      navigate('/ad/matpel/main')
+    } catch (error) {
+      if (error.response) {
+        setMsg(error.response.data.message)
+        swal({
+          title: 'Error',
+          text: error.response.data.message,
+          icon: 'warning',
+          buttons: true,
+          dangerMode: true,
+        })
+      }
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div>
@@ -69,7 +112,7 @@ const Ubah = () => {
           </div>
           {msg && (
             <CAlert color="danger" className="rounded-15">
-              {msg}
+              <i className="bi bi-exclamation-triangle-fill"></i> {msg}
             </CAlert>
           )}
           <CForm className="card-form" onSubmit={formik.handleSubmit}>
@@ -110,10 +153,7 @@ const Ubah = () => {
           data-aos-easing="ease-in-sine"
           data-aos-duration="600"
         >
-          <div
-            className="preview shadow bg-white rounded-15"
-            style={{ width: '100%', maxWidth: '100vw' }}
-          >
+          <div className="preview shadow bg-white rounded-15" style={{ minWidth: '250px' }}>
             <div
               className="head px-3 py-2"
               style={{ backgroundColor: 'var(--purple-main)', height: '100px' }}

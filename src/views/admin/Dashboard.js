@@ -10,21 +10,30 @@ import {
   CRow,
 } from '@coreui/react'
 import { CChartBar } from '@coreui/react-chartjs'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useSelector } from 'react-redux'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 
+import axios from 'axios'
 const Dashboard = () => {
   const jadwalDiambil = [12, 20, 32, 50, 32]
   const jadwalSelesai = [22, 10, 12, 31, 8]
+
+  const [admin, setAdmin] = useState([])
   const auth = useSelector((state) => state.auth)
 
   useEffect(() => {
     document.title = 'Dashboard Admin | Aplis'
     AOS.init()
     AOS.refresh()
+    getAdmin()
   }, [])
+
+  const getAdmin = async () => {
+    const response = await axios.get(`http://localhost:5000/admin/user-id/${auth.id}`)
+    setAdmin(response.data)
+  }
 
   return (
     <div>
@@ -35,7 +44,7 @@ const Dashboard = () => {
         data-aos-duration="300"
       >
         <div className="my-4 position-relative" style={{ zIndex: 10 }}>
-          <h2 className="fw-bold mb-0">Halo, {auth.account.username}</h2>
+          <h2 className="fw-bold mb-0">Halo, {auth.username}</h2>
           <p className="mb-0">Selamat datang kembali!</p>
         </div>
         <div className="position-absolute" style={{ left: 0, bottom: '20px' }}>

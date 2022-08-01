@@ -27,7 +27,6 @@ const JadwalSaya = React.lazy(() => import('src/views/admin/jadwal/JadwalSaya'))
 
 // ADMIN & GURU
 const TambahNilai = React.lazy(() => import('src/views/admin/nilai/Tambah'))
-const TambahAllNilai = React.lazy(() => import('src/views/admin/nilai/TambahAll'))
 
 const AppContent = () => {
   return (
@@ -75,10 +74,6 @@ const AppContent = () => {
 
           {/* GURU & ADMIN ONLY */}
           <Route path="/nilai/tambah" element={<Middleware.NotSiswa render={<TambahNilai />} />} />
-          <Route
-            path="/nilai/tambah-all"
-            element={<Middleware.NotSiswa render={<TambahAllNilai />} />}
-          />
 
           {/* TAMBAH EDIT GURU & SISWA */}
           {routes.map((route, idx) => {

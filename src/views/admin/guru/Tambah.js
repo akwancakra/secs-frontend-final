@@ -1,32 +1,43 @@
 import { CAlert, CButton, CForm, CSpinner } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Select from 'react-select'
-import defaultBanner from '../../../assets/images/banner-default.jpg'
 // DROPZONE
-import { useDropzone } from 'react-dropzone'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { BannerMedium } from 'src/components'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import { toast } from 'react-toastify'
+import axios from 'axios'
 
 const Tambah = () => {
+  const [isLoading, setIsLoading] = useState(false)
+  const [files, setFiles] = useState([])
+  const [preview, setPreview] = useState('')
+  const [matpels, setMatpels] = useState([])
+
+  const navigate = useNavigate()
   const [msg, setMsg] = useState('')
-  const [files, setFile] = useState([])
 
   useEffect(() => {
     document.title = 'Tambah Guru | Aplis'
     AOS.init()
     AOS.refresh()
+    getDatas()
   }, [])
 
+  const getDatas = async () => {
+    const response = await axios.get('http://localhost:5000/mata-pelajaran/data')
+    setMatpels(
+      response.data.map((d) => ({
+        value: d.id,
+        label: `${d.nama}`,
+      })),
+    )
+  }
+
   const banner = { title: 'Tambah Guru', text: '' }
-  const options = [
-    { value: 1, label: 'Matematika' },
-    { value: 2, label: 'Bahasa Indonesia' },
-    { value: 3, label: 'Sastra Arab' },
-  ]
 
   const agamaData = [
     { value: 'Islam', label: 'Islam' },
@@ -42,67 +53,35 @@ const Tambah = () => {
     { value: 'Perempuan', label: 'Perempuan' },
   ]
 
-  const guru = {
-    id: 1,
-    nama: 'Prof. H. Naimin',
-    nip: 1920139123,
-    matpel: { id: 1, nama: 'Matematika', abbr: 'MTK' },
-    agama: 'Islam',
-    jenis_kelamin: 'Laki-laki',
-    user: { id: 1, username: 'naimin', email: 'naimin@mail.com' },
+  const uploadImage = (e) => {
+    const image = e.target.files[0]
+    if (!image.name.match(/\.(jpg|jpeg|png)$/)) {
+      toast.error('Ekstensi gambar harus .png, .jpg or .jpeg', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      return false
+    }
+    if (image.size >= 1000000) {
+      toast.error('Gambar tidak boleh lebih besar dari 1MB', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      return false
+    }
+    setFiles(image)
+    setPreview(URL.createObjectURL(image))
   }
-
-  const { getRootProps, getInputProps, fileRejections, acceptedFiles } = useDropzone({
-    accept: {
-      'image/*': ['.jpeg', '.jpg', '.png'],
-    },
-    multiple: false,
-    maxSize: 1048576,
-    onDrop: (acceptedFiles) => {
-      setFile(
-        acceptedFiles.map((file) =>
-          Object.assign(file, {
-            preview: URL.createObjectURL(file),
-          }),
-        ),
-      )
-    },
-  })
-
-  const acceptedFileItems = acceptedFiles.map((file) => (
-    // eslint-disable-next-line react/jsx-key
-    <p className="mb-0">
-      {file.path} - {file.size} bytes
-    </p>
-  ))
-
-  const fileRejectionItems = fileRejections.map(({ file, errors }) => (
-    // eslint-disable-next-line react/jsx-key
-    <p className="mb-0">
-      {file.path} - {file.size} bytes
-      <ul>
-        {errors.map((e) => (
-          // eslint-disable-next-line react/jsx-key
-          <li>{e.message}</li>
-        ))}
-      </ul>
-    </p>
-  ))
-
-  const images = files.map((file) => (
-    <div className="rounded-15" key={file.name}>
-      <div>
-        <img
-          src={file.preview}
-          alt="Image Preview"
-          className="rounded-15 img-thumbnail"
-          style={{ maxHeight: '250px' }}
-        />
-      </div>
-    </div>
-  ))
-
-  const previewImg = files.map((file) => file.preview)
 
   const formik = useFormik({
     initialValues: {
@@ -114,7 +93,7 @@ const Tambah = () => {
       username: '',
       email: '',
       password: '',
-      password_confirm: '',
+      confPassword: '',
     },
     validationSchema: Yup.object({
       nama: Yup.string()
@@ -144,15 +123,72 @@ const Tambah = () => {
         .matches(/[@$!%*#?&]+/, 'Minimal 1 simbol!')
         .matches(/\d+/, 'Minimal 1 angka!')
         .required('Password wajib diisi!'),
-      password_confirm: Yup.string()
+      confPassword: Yup.string()
         .oneOf([Yup.ref('password'), null], 'Password konfirmasi harus sesuai dengan password!')
         .required('Konfirmasi Password wajib diisi!'),
     }),
     onSubmit: (values) => {
-      // CARI EMAIL YANG SAMA, CARI NIP YANG SAMA
-      console.log(values, files)
+      UploadHandel(values)
     },
   })
+
+  const UploadHandel = async (value) => {
+    setIsLoading(true)
+    try {
+      const createUser = await axios.post('http://localhost:5000/user/create', {
+        role: 2,
+        username: value.username,
+        email: value.email,
+        password: value.password,
+      })
+
+      await axios.post(
+        'http://localhost:5000/guru/create',
+        {
+          id_user: createUser.data,
+          id_mata_pelajaran: value.matpel,
+          nama: value.nama,
+          nip: value.nip,
+          agama: value.agama,
+          jenis_kelamin: value.jenis_kelamin,
+          file: files,
+        },
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      )
+
+      toast.success('Berhasil membuat akun guru!', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+
+      setIsLoading(false)
+
+      navigate('/guru/main')
+    } catch (error) {
+      if (error.response) {
+        setMsg(error.response.data.message)
+        toast.error(error.response.data.message, {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
+      }
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div>
@@ -169,7 +205,24 @@ const Tambah = () => {
           Kembali
         </Link>
       </div>
-
+      {isLoading ? (
+        <div
+          className="d-flex justify-content-center align-items-center position-fixed"
+          style={{
+            zIndex: 99,
+            width: '100vw',
+          }}
+        >
+          <div
+            className="rounded-15 d-flex justify-content-center align-items-center"
+            style={{ backgroundColor: 'var(--white)', width: '200px', height: '200px' }}
+          >
+            <CSpinner color="purple" style={{ height: '150px', width: '150px' }} size="lg" />
+          </div>
+        </div>
+      ) : (
+        ''
+      )}
       <div className="d-md-flex justify-content-around my-3">
         <div
           className="input-wrapper my-3 pe-md-2"
@@ -188,7 +241,7 @@ const Tambah = () => {
           </div>
           {msg && (
             <CAlert color="danger" className="rounded-15">
-              {msg}
+              <i className="bi bi-exclamation-triangle-fill"></i> {msg}
             </CAlert>
           )}
           <CForm className="card-form" onSubmit={formik.handleSubmit}>
@@ -233,7 +286,7 @@ const Tambah = () => {
               <Select
                 placeholder="Pilih Matpel"
                 name="matpel"
-                options={options}
+                options={matpels}
                 className={formik.errors.matpel && formik.touched.matpel ? ' is-invalid' : ''}
                 onChange={(e) => formik.setFieldValue('matpel', e.value)}
               />
@@ -269,15 +322,32 @@ const Tambah = () => {
                 <small className="text-danger">{formik.errors.jenis_kelamin}</small>
               )}
             </div>
-            <label>Foto</label>
-            <div className="mb-3 rounded-15 input-drop" {...getRootProps()}>
-              <input {...getInputProps()} />
-              <p className="mb-0">Seret dan jatuhkan file Anda di sini.</p>
-              <i className="bi bi-card-image"></i>
+            <div className="mb-3">
+              <label className="form-label">Foto</label>
+              <input
+                className="form-control rounded-15"
+                type="file"
+                name="files"
+                onChange={(e) => uploadImage(e)}
+              />
             </div>
-            <div>{acceptedFileItems}</div>
-            <div>{fileRejectionItems}</div>
-            <div>{images}</div>
+            <div className="img-preview">
+              {preview ? (
+                <img
+                  src={preview}
+                  className="img-thumbnail rounded-15"
+                  style={{
+                    width: '100%',
+                    height: '350px',
+                    objectFit: 'cover',
+                    backgroundPosition: 'center',
+                    backgroundSize: 'cover',
+                  }}
+                />
+              ) : (
+                ''
+              )}
+            </div>
             <hr />
             <p className="fw-bold">Akun</p>
             <div className="mb-3">
@@ -337,17 +407,15 @@ const Tambah = () => {
                 type="password"
                 className={
                   'form-control rounded-15' +
-                  (formik.errors.password_confirm && formik.touched.password_confirm
-                    ? ' is-invalid'
-                    : '')
+                  (formik.errors.confPassword && formik.touched.confPassword ? ' is-invalid' : '')
                 }
-                name="password_confirm"
+                name="confPassword"
                 placeholder="Konfirmasi Password"
-                value={formik.values.password_confirm}
+                value={formik.values.confPassword}
                 onChange={formik.handleChange}
               />
-              {formik.errors.password_confirm && formik.touched.password_confirm && (
-                <small className="text-danger">{formik.errors.password_confirm}</small>
+              {formik.errors.confPassword && formik.touched.confPassword && (
+                <small className="text-danger">{formik.errors.confPassword}</small>
               )}
             </div>
             <div className="d-flex justify-content-end">
@@ -377,8 +445,8 @@ const Tambah = () => {
             <div
               className="head px-3 py-2"
               style={{
-                backgroundImage: `url(${previewImg != '' ? previewImg : defaultBanner})`,
-                minHeight: '350px',
+                backgroundColor: `var(--purple-main)`,
+                minHeight: '200px',
               }}
             ></div>
             <div className="over-head"></div>
@@ -395,7 +463,9 @@ const Tambah = () => {
                   <i className="bx bx-book me-1"></i>
                   <p className="mb-0">Pelajaran</p>
                 </div>
-                <h4 className="fw-bold">{guru ? guru.matpel.nama : 'Nama Pelajaran'}</h4>
+                <h4 className="fw-bold">
+                  {formik.values.matpel ? formik.values.matpel : 'Nama Pelajaran'}
+                </h4>
               </div>
             </div>
           </div>

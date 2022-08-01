@@ -8,7 +8,7 @@ const NotAdmin = (props) => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (auth.account.role === 'admin') {
+    if (auth.role === 1) {
       navigate('/ad/dashboard')
     }
   }, []);

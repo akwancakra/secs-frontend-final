@@ -33,9 +33,9 @@ const AppSidebar = () => {
       </CSidebarBrand>
       <CSidebarNav>
         <SimpleBar>
-          {auth.account.role === 'admin' && <AppSidebarNav items={Navigation._navAdmin} />}
-          {auth.account.role === 'guru' && <AppSidebarNav items={Navigation._navGuru} />}
-          {auth.account.role === 'siswa' && <AppSidebarNav items={Navigation._navSiswa} />}
+          {auth.role === 1 && <AppSidebarNav items={Navigation._navAdmin} />}
+          {auth.role === 2 && <AppSidebarNav items={Navigation._navGuru} />}
+          {auth.role === 3 && <AppSidebarNav items={Navigation._navSiswa} />}
         </SimpleBar>
       </CSidebarNav>
       <CSidebarToggler

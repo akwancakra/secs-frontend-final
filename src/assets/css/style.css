@@ -251,6 +251,16 @@ input:focus:not([readonly]) {
     padding: 8px;
 }
 
+.filepond--drop-label {
+    border: 2px #b1b7c1 dashed;
+    background: var(--white);
+    border-radius: 15px;
+    -webkit-border-radius: 15px;
+    -moz-border-radius: 15px;
+    -ms-border-radius: 15px;
+    -o-border-radius: 15px;
+}
+
 .input-drop i.bi {
     font-size: 70px;
 }

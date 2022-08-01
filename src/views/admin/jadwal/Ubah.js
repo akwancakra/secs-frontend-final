@@ -2,102 +2,104 @@ import { CAlert, CForm } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate, useParams } from 'react-router-dom'
 import Select from 'react-select'
-import defaultBanner from '../../../assets/images/banner-default.jpg'
 // DROPZONE
-import { useDropzone } from 'react-dropzone'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { BannerMedium } from 'src/components'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Ubah = () => {
   const [files, setFiles] = useState([])
+  const [preview, setPreview] = useState('')
+  const auth = useSelector((state) => state.auth)
+  const [gurus, setGurus] = useState([])
+  const [jadwal, setJadwal] = useState([])
 
   const [msg, setMsg] = useState('')
   const navigate = useNavigate()
   const { id } = useParams()
+  const banner = { title: 'Ubah Siswa', text: '' }
 
   useEffect(() => {
     document.title = 'Ubah Jadwal | Aplis'
     AOS.init()
     AOS.refresh()
+    getGurus()
   }, [])
 
-  const banner = { title: 'Ubah Siswa', text: '' }
-  const options = [
-    { value: 1, label: 'Prof. H. Naimin - Matematika' },
-    { value: 2, label: 'H. Sukma Jaya - Bahasa Indonesia' },
-    { value: 3, label: 'Yanah Wulandari - Sastra Arab' },
-  ]
-
-  const jadwal = {
-    id: 1,
-    ruangan: 'RPL 1',
-    tanggal: '2022-07-21 00:00:00.000',
-    guru: { id: 1, nama: 'Prof. H. Naimin', matpel: { id: 1, nama: 'Matematika' } },
+  const getGurus = async () => {
+    if (auth.role === 1) {
+      const response = await axios.get('http://localhost:5000/guru/data')
+      if (response.data == '') {
+        navigate('/jadwal/main')
+      }
+      if (auth.role === 1) {
+        setGurus(
+          response.data.map((d) => ({
+            value: d.id,
+            label: `${d.nama} - ${d.mataPelajaran.nama}`,
+          })),
+        )
+      }
+    } else if (auth.role === 2) {
+      const response = await axios.get(`http://localhost:5000/guru/user-id/${auth.id}`)
+      if (response.data == '') {
+        navigate('/jadwal-saya')
+      }
+      formik.setFieldValue('guru', response.data.id)
+    }
+    const responseTwo = await axios.get(`http://localhost:5000/jadwal/${id}`)
+    if (responseTwo.data == '') {
+      navigate('/jadwal/main')
+    }
+    setJadwal(responseTwo.data)
+    if (auth.role === 1) {
+      formik.setFieldValue('guru', responseTwo.data.guru.id)
+    }
+    formik.setFieldValue('ruangan', responseTwo.data.ruang)
+    formik.setFieldValue('tanggal', responseTwo.data.tanggal)
+    setPreview(responseTwo.data.photo)
   }
 
-  const auth = 'admin'
-
-  const { getRootProps, getInputProps, fileRejections, acceptedFiles } = useDropzone({
-    accept: {
-      'image/*': ['.jpeg', '.jpg', '.png'],
-    },
-    multiple: false,
-    maxSize: 1048576,
-    onDrop: (acceptedFiles) => {
-      setFiles(
-        acceptedFiles.map((file) =>
-          Object.assign(file, {
-            preview: URL.createObjectURL(file),
-          }),
-        ),
-      )
-    },
-  })
-
-  const acceptedFileItems = acceptedFiles.map((file) => (
-    // eslint-disable-next-line react/jsx-key
-    <p className="mb-0">
-      {file.path} - {file.size} bytes
-    </p>
-  ))
-
-  const fileRejectionItems = fileRejections.map(({ file, errors }) => (
-    // eslint-disable-next-line react/jsx-key
-    <p className="mb-0">
-      {file.path} - {file.size} bytes
-      <ul>
-        {errors.map((e) => (
-          // eslint-disable-next-line react/jsx-key
-          <li>{e.message}</li>
-        ))}
-      </ul>
-    </p>
-  ))
-
-  const images = files.map((file) => (
-    // eslint-disable-next-line react/jsx-key
-    <div className="rounded-15">
-      <div>
-        <img
-          src={file.preview}
-          alt="Image Preview"
-          className="rounded-15 img-thumbnail"
-          style={{ maxHeight: '250px' }}
-        />
-      </div>
-    </div>
-  ))
-
-  const previewImg = files.map((file) => file.preview)
+  const uploadImage = (e) => {
+    const image = e.target.files[0]
+    if (!image.name.match(/\.(jpg|jpeg|png)$/)) {
+      toast.error('Ekstensi gambar harus .png, .jpg or .jpeg', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      return false
+    }
+    if (image.size >= 1000000) {
+      toast.error('Gambar tidak boleh lebih besar dari 1MB', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      return false
+    }
+    setFiles(image)
+    setPreview(URL.createObjectURL(image))
+  }
 
   const formik = useFormik({
     initialValues: {
-      guru: jadwal.guru.id,
-      ruangan: jadwal.ruangan,
-      tanggal: jadwal.tanggal,
+      guru: '',
+      ruangan: '',
+      tanggal: '',
     },
     validationSchema: Yup.object({
       guru: Yup.number().required('Guru wajib dipilih!'),
@@ -108,10 +110,56 @@ const Ubah = () => {
       tanggal: Yup.string().required('Tanggal wajib diisi!'),
     }),
     onSubmit: (values) => {
-      // CARI EMAIL YANG SAMA, CARI NIP YANG SAMA
-      console.log(values, files)
+      HandleUpload(values)
     },
   })
+
+  const HandleUpload = async (values) => {
+    try {
+      await axios.patch(
+        `http://localhost:5000/jadwal/update/${id}`,
+        {
+          id_guru: values.guru,
+          ruang: values.ruangan,
+          tanggal: values.tanggal,
+          file: files,
+        },
+        {
+          headers: {
+            'Content-Type': 'multipart/form-data',
+          },
+        },
+      )
+      toast.success('Berhasil mengubah jadwal!', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+
+      if (auth.role !== 2) {
+        navigate(`/jadwal/${id}`)
+      } else {
+        navigate('/jadwal-saya')
+      }
+    } catch (error) {
+      if (error.response) {
+        setMsg(error.response.data.message)
+        toast.error(error.response.data.message, {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
+      }
+    }
+  }
 
   return (
     <div>
@@ -119,7 +167,7 @@ const Ubah = () => {
 
       <div className="my-2">
         <Link
-          to="/jadwal/main"
+          to={`/jadwal/${id}`}
           className="btn btn-soft-purple rounded-15 fw-bold"
           data-aos="fade-up"
           data-aos-easing="ease-in-sine"
@@ -151,14 +199,14 @@ const Ubah = () => {
             </CAlert>
           )}
           <CForm className="card-form" onSubmit={formik.handleSubmit}>
-            {auth == 'admin' ? (
+            {auth.role == 1 ? (
               <div className="mb-3 select2">
                 <label>Guru</label>
                 <Select
                   placeholder="Pilih Guru"
                   name="guru"
-                  options={options}
-                  value={options.filter((option) => option.value == formik.values.guru)}
+                  options={gurus}
+                  value={gurus.filter((option) => option.value == formik.values.guru)}
                   className={formik.errors.guru && formik.touched.guru ? ' is-invalid' : ''}
                   onChange={(e) => formik.setFieldValue('guru', e.value)}
                 />
@@ -186,15 +234,28 @@ const Ubah = () => {
                 <small className="text-danger">{formik.errors.ruangan}</small>
               )}
             </div>
-            <label>Banner</label>
-            <div className="mb-3 rounded-15 input-drop" {...getRootProps()}>
-              <input {...getInputProps()} />
-              <p className="mb-0">Seret dan jatuhkan file Anda di sini.</p>
-              <i className="bi bi-card-image"></i>
+            <div className="mb-3">
+              <label className="form-label">Banner</label>
+              <input
+                className="form-control"
+                type="file"
+                name="files"
+                onChange={(e) => uploadImage(e)}
+              />
             </div>
-            <div>{acceptedFileItems}</div>
-            <div>{fileRejectionItems}</div>
-            <div>{images}</div>
+            <div className="img-preview">
+              <img
+                src={preview}
+                className="img-thumbnail rounded-15"
+                style={{
+                  width: '100%',
+                  height: '150px',
+                  objectFit: 'cover',
+                  backgroundPosition: 'center',
+                  backgroundSize: 'cover',
+                }}
+              />
+            </div>
             <div className="mb-3">
               <label>Tanggal</label>
               <input
@@ -226,7 +287,7 @@ const Ubah = () => {
         </div>
 
         <div
-          className="jadwal-card jadwal-change preview-wrapper py-2"
+          className="jadwal-card jadwal-change preview-wrapper py-2 overflow-hidden"
           data-aos="fade-up"
           data-aos-easing="ease-in-sine"
           data-aos-duration="600"
@@ -237,7 +298,7 @@ const Ubah = () => {
           >
             <div
               className="head px-3 py-2"
-              style={{ backgroundImage: `url(${previewImg != '' ? previewImg : defaultBanner})` }}
+              style={{ backgroundColor: `var(--purple-main)`, maxHeight: '150px' }}
             ></div>
             <div className="over-head"></div>
             <div className="contents px-3 row">
@@ -266,14 +327,16 @@ const Ubah = () => {
                   <i className="bx bx-chalkboard me-1"></i>
                   <p className="mb-0">Guru</p>
                 </div>
-                <h4 className="fw-bold">{formik.values.guru ? formik.values.guru : 'Guru'}</h4>
+                <h4 className="fw-bold">{jadwal.guru ? jadwal.guru.nama : 'Guru'}</h4>
               </div>
               <div className="col-12">
                 <div className="d-flex align-items-center">
                   <i className="bx bx-book me-1"></i>
                   <p className="mb-0">Pelajaran</p>
                 </div>
-                <h4 className="fw-bold">{jadwal.guru.matpel.nama}</h4>
+                <h4 className="fw-bold">
+                  {jadwal.guru ? jadwal.guru.mataPelajaran.nama : 'Pelajaran'}
+                </h4>
               </div>
             </div>
           </div>

@@ -1,18 +1,4 @@
-import {
-  CAlert,
-  CButton,
-  CForm,
-  CFormInput,
-  CPagination,
-  CPaginationItem,
-  CSpinner,
-  CTable,
-  CTableBody,
-  CTableDataCell,
-  CTableHead,
-  CTableHeaderCell,
-  CTableRow,
-} from '@coreui/react'
+import { CButton, CForm, CFormInput, CSpinner } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BannerMedium } from 'src/components'
@@ -21,12 +7,16 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 import DataTable from 'react-data-table-component'
 import 'src/assets/css/datatables.css'
+import axios from 'axios'
 
 const Daftar = () => {
+  const [datas, setDatas] = useState([])
+
   useEffect(() => {
     document.title = 'Daftar Mata Pelajaran | Aplis'
     AOS.init()
     AOS.refresh()
+    getData()
   }, [])
 
   const banner = {
@@ -37,17 +27,45 @@ const Daftar = () => {
   const swalDisplay = async (id) => {
     swal({
       title: 'Apakah anda yakin?',
-      text: 'Data yang anda hapus tidak bisa dipulihkan kembali!' + id,
+      text: 'Data yang anda hapus tidak bisa dipulihkan kembali!',
       icon: 'warning',
       buttons: true,
       dangerMode: true,
-    }).then((willDelete) => {
+    }).then(async (willDelete) => {
       if (willDelete) {
-        swal('Data sukses dihapus!', {
-          icon: 'success',
+        await axios.delete(`http://localhost:5000/mata-pelajaran/${id}`).then(() => {
+          swal('Data sukses dihapus!', {
+            icon: 'success',
+          })
         })
+        getData()
       }
     })
+  }
+
+  const getData = async () => {
+    const response = await axios.get('http://localhost:5000/mata-pelajaran/data')
+    setDatas(
+      response.data.map((d, index) => ({
+        id: d.id,
+        number: index + 1,
+        nama: d.nama,
+        aksi: (
+          <>
+            <Link to={`/ad/matpel/ubah/${d.id}`} className="btn btn-warning rounded-15 me-1">
+              Ubah
+            </Link>
+            <button
+              type="button"
+              className="btn btn-danger rounded-15"
+              onClick={() => swalDisplay(d.id)}
+            >
+              Hapus
+            </button>
+          </>
+        ),
+      })),
+    )
   }
 
   const columns = [
@@ -66,66 +84,6 @@ const Daftar = () => {
     {
       name: 'Aksi',
       selector: (row) => row.aksi,
-    },
-  ]
-
-  const data = [
-    {
-      id: 1,
-      number: 1,
-      nama: 'Matematika',
-      aksi: (
-        <>
-          <Link to="/ad/matpel/ubah/1" className="btn btn-warning rounded-15 me-1">
-            Ubah
-          </Link>
-          <button
-            type="button"
-            className="btn btn-soft-danger rounded-15"
-            onClick={() => swalDisplay(1)}
-          >
-            Hapus
-          </button>
-        </>
-      ),
-    },
-    {
-      id: 2,
-      number: 2,
-      nama: 'Sastra Arab',
-      aksi: (
-        <>
-          <Link to="/ad/matpel/ubah/2" className="btn btn-warning rounded-15 me-1">
-            Ubah
-          </Link>
-          <button
-            type="button"
-            className="btn btn-soft-danger rounded-15"
-            onClick={() => swalDisplay(2)}
-          >
-            Hapus
-          </button>
-        </>
-      ),
-    },
-    {
-      id: 3,
-      number: 3,
-      nama: 'Bahasa Inggris',
-      aksi: (
-        <>
-          <Link to="/ad/matpel/ubah/3" className="btn btn-warning rounded-15 me-1">
-            Ubah
-          </Link>
-          <button
-            type="button"
-            className="btn btn-soft-danger rounded-15"
-            onClick={() => swalDisplay(3)}
-          >
-            Hapus
-          </button>
-        </>
-      ),
     },
   ]
 
@@ -174,7 +132,7 @@ const Daftar = () => {
       >
         <DataTable
           columns={columns}
-          data={data}
+          data={datas}
           progressComponent={<CSpinner color="primary" />}
           pagination
         />

@@ -1,27 +1,39 @@
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { BannerMedium } from 'src/components'
 import profilImg from 'src/assets/images/avatars/user.png'
+import siswaImg from 'src/assets/images/avatars/siswa.png'
 import { useSelector } from 'react-redux'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import axios from 'axios'
+import { CImage } from '@coreui/react'
 
 const Profile = () => {
   const auth = useSelector((state) => state.auth)
+  const banner = { title: 'Profil', text: '' }
+  // const dispatch = useDispatch()
+  const [profil, setProfil] = useState([])
 
   useEffect(() => {
     document.title = 'Profil | Aplis'
     AOS.init()
     AOS.refresh()
+    getData()
   }, [])
 
-  const banner = { title: 'Profil', text: '' }
-  const user = {
-    id: 1,
-    nama: 'Akwan Cakra Tajimalela',
-    nis: 192010382,
-    agama: 'Islam',
-    jenis_kelamin: 'Laki-laki',
+  const getData = async () => {
+    let url = ''
+    if (auth.role == 1) {
+      url = `http://localhost:5000/admin/user-id/${auth.id}`
+    } else if (auth.role == 2) {
+      url = `http://localhost:5000/guru/user-id/${auth.id}`
+    } else if (auth.role == 3) {
+      url = `http://localhost:5000/siswa/user-id/${auth.id}`
+    }
+
+    const response = await axios.get(url)
+    setProfil(response.data)
   }
 
   return (
@@ -44,49 +56,67 @@ const Profile = () => {
         </div>
         <div className="over-head"></div>
         <div className="img-profil position-relative">
-          <img
-            src={profilImg}
-            alt="Image Profil"
-            className="position-absolute"
-            style={{ bottom: '-20px', left: '20px' }}
-          />
+          {auth.role === 1 && (
+            <CImage
+              src={profilImg}
+              alt="Image Profil"
+              className="position-absolute"
+              style={{ bottom: '-20px', left: '20px', objectFit: 'cover' }}
+            />
+          )}
+          {auth.role === 2 && (
+            <CImage
+              src={profil.photo !== 'user.png' ? profil.photo : profilImg}
+              alt="Image Profil"
+              className="position-absolute"
+              style={{ bottom: '-20px', left: '20px', objectFit: 'cover' }}
+            />
+          )}
+          {auth.role === 3 && (
+            <CImage
+              src={profil.photo !== 'siswa.png' ? profil.photo : siswaImg}
+              alt="Image Profil"
+              className="position-absolute"
+              style={{ bottom: '-20px', left: '20px', objectFit: 'cover' }}
+            />
+          )}
         </div>
         <div className="content p-3 row rounded-15" style={{ marginTop: '25px' }}>
           <div className="col-12 col-md-6">
             <div className="d-flex align-items-center">
               <p className="mb-0">Nama</p>
             </div>
-            <h4 className="fw-bold">{user.nama}</h4>
+            <h4 className="fw-bold">{profil.nama}</h4>
           </div>
-          {auth.account.role === 'siswa' && (
+          {auth.role === 3 && (
             <div className="col-12 col-md-6">
               <div className="d-flex align-items-center">
                 <p className="mb-0">NIS</p>
               </div>
-              <h4 className="fw-bold">{user.nis}</h4>
+              <h4 className="fw-bold">{profil.nis}</h4>
             </div>
           )}
-          {auth.account.role === 'guru' && (
+          {auth.role === 2 && (
             <div className="col-12 col-md-6">
               <div className="d-flex align-items-center">
                 <p className="mb-0">NIP</p>
               </div>
-              <h4 className="fw-bold">{user.nis}</h4>
+              <h4 className="fw-bold">{profil.nip}</h4>
             </div>
           )}
-          {auth.account.role !== 'admin' && (
+          {auth.role !== 1 && (
             <>
               <div className="col-12 col-md-6">
                 <div className="d-flex align-items-center">
                   <p className="mb-0">Agama</p>
                 </div>
-                <h4 className="fw-bold">{user.agama}</h4>
+                <h4 className="fw-bold">{profil.agama}</h4>
               </div>
               <div className="col-12 col-md-6">
                 <div className="d-flex align-items-center">
                   <p className="mb-0">Jenis Kelamin</p>
                 </div>
-                <h4 className="fw-bold">{user.jenis_kelamin}</h4>
+                <h4 className="fw-bold">{profil.jenis_kelamin}</h4>
               </div>
             </>
           )}

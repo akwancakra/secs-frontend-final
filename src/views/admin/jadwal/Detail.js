@@ -1,42 +1,38 @@
-import { CAlert } from '@coreui/react'
-import React, { useEffect } from 'react'
-import { Link, useNavigate } from 'react-router-dom'
+import { CAlert, CSpinner } from '@coreui/react'
+import React, { useEffect, useState } from 'react'
+import { Link, useNavigate, useParams } from 'react-router-dom'
 import { BannerMedium, JadwalDetail } from 'src/components'
 import JadwalSiswa from 'src/components/jadwal/JadwalSiswa'
 import { useSelector } from 'react-redux'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import axios from 'axios'
 
 const Detail = () => {
+  const [loading, setLoading] = useState([])
+  const [jadwal, setJadwal] = useState([])
   const navigate = useNavigate()
   const auth = useSelector((state) => state.auth)
+  const { id } = useParams()
 
   const banner = { title: 'Detil Jadwal', text: '' }
-  const jadwal = {
-    id: 1,
-    ruangan: 'RPL 1',
-    tanggal: '2022-07-21 00:00:00.000',
-    dosen: { nama: 'Prof. H. Naimin', matpel: { id: 1, nama: 'Matematika' } },
-  }
-
-  const siswas = [
-    {
-      id: 1,
-      nama: 'Akwan Cakra Tajimalela',
-      nis: 192010382,
-    },
-    {
-      id: 2,
-      nama: 'Dandy Alyahmin',
-      nis: 192010383,
-    },
-  ]
 
   useEffect(() => {
     document.title = 'Detail Jadwal | Aplis'
     AOS.init()
     AOS.refresh()
+    setLoading(true)
+    getJadwal()
   }, [])
+
+  const getJadwal = async () => {
+    const response = await axios.get(`http://localhost:5000/jadwal/${id}`)
+    if (response.data == '') {
+      navigate('/jadwal/main')
+    }
+    setJadwal(response.data)
+    setLoading(false)
+  }
 
   return (
     <div>
@@ -56,18 +52,34 @@ const Detail = () => {
       </div>
 
       <div className="mb-4 mt-1">
-        <JadwalDetail jadwal={jadwal} auth={auth.account.role} />
+        {loading ? (
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ width: '100%', minHeight: '250px' }}
+          >
+            <CSpinner color="purple" />
+          </div>
+        ) : (
+          <JadwalDetail jadwal={jadwal} auth={auth} />
+        )}
       </div>
 
-      <h2 className="mb-0 fw-bold mt-4">Siswa</h2>
+      <h2 className="mb-0 fw-bold mt-4 mb-2">Siswa</h2>
       <div className="row">
-        {siswas ? (
-          siswas.map((siswa, index) => (
+        {loading ? (
+          <div
+            className="d-flex justify-content-center align-items-center"
+            style={{ width: '100%', minHeight: '250px' }}
+          >
+            <CSpinner color="purple" />
+          </div>
+        ) : jadwal.siswa[0] ? (
+          jadwal.siswa.map((siswa, index) => (
             // eslint-disable-next-line react/jsx-key
             <JadwalSiswa siswa={siswa} index={index} key={siswa.id} />
           ))
         ) : (
-          <CAlert color="primary">
+          <CAlert color="primary" className="rounded-15">
             Tidak ada data <strong>siswa</strong> untuk ditampilkan.
           </CAlert>
         )}

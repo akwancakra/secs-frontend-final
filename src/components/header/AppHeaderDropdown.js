@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import {
   CAvatar,
   CDropdown,
@@ -20,25 +20,46 @@ import { useSelector, useDispatch } from 'react-redux'
 // TOAST
 import { toast } from 'react-toastify'
 import Cookies from 'universal-cookie'
+import axios from 'axios'
 
 const AppHeaderDropdown = () => {
   const auth = useSelector((state) => state.auth)
   const dispatch = useDispatch()
   const navigate = useNavigate()
   const cookies = new Cookies()
+  const [avatar, setAvatar] = useState('')
+
+  useEffect(() => {
+    getProfil()
+  }, [])
+
+  const getProfil = async () => {
+    let url = ''
+    if (auth.role == 2) {
+      url = `http://localhost:5000/guru/user-id/${auth.id}`
+    } else if (auth.role == 3) {
+      url = `http://localhost:5000/siswa/user-id/${auth.id}`
+    }
+
+    await axios.get(url).then((result) => {
+      setAvatar(result.data.photo)
+    })
+  }
 
   const LogoutHandler = () => {
     dispatch({
       type: 'set',
       auth: {
         isLogged: false,
-        account: { id: 0, username: '', role: '' },
+        id: 0,
+        role: 0,
+        username: '',
+        photo: '',
       },
     })
 
-    console.log(auth)
-
     cookies.remove('auth')
+
     toast.success('Berhasil keluar!', {
       position: 'top-right',
       autoClose: 5000,
@@ -54,10 +75,20 @@ const AppHeaderDropdown = () => {
   return (
     <CDropdown variant="nav-item">
       <CDropdownToggle placement="bottom-end" className="py-0" caret={false}>
-        {auth.account.role === 'siswa' ? (
-          <CAvatar src={siswaPng} size="md" className="bg-secondary" />
-        ) : (
-          <CAvatar src={userPng} size="md" className="bg-secondary" />
+        {auth.role === 1 && <CAvatar src={userPng} size="md" className="bg-secondary" />}
+        {auth.role === 2 && (
+          <CAvatar
+            src={avatar !== 'user.png' ? avatar : userPng}
+            size="md"
+            className="bg-secondary"
+          />
+        )}
+        {auth.role === 3 && (
+          <CAvatar
+            src={avatar !== 'siswa.png' ? avatar : siswaPng}
+            size="md"
+            className="bg-secondary"
+          />
         )}
       </CDropdownToggle>
       <CDropdownMenu className="pt-0 mt-2" placement="bottom-end">

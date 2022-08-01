@@ -1,27 +1,44 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
-import defaultBanner from 'src/assets/images/banner-default.jpg'
-import { Link } from 'react-router-dom'
+import defaultBanner from 'src/assets/images/avatars/user.png'
+import { Link, useNavigate } from 'react-router-dom'
 import swal from 'sweetalert'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import axios from 'axios'
 
 const GuruCard = ({ guru, auth }) => {
+  const navigate = useNavigate()
   AOS.init()
   AOS.refresh()
 
   const swalDisplay = async (id) => {
     swal({
       title: 'Apakah anda yakin?',
-      text: 'Data yang anda hapus tidak bisa dipulihkan kembali!' + id,
+      text: 'Data yang anda hapus tidak bisa dipulihkan kembali!',
       icon: 'warning',
       buttons: true,
       dangerMode: true,
-    }).then((willDelete) => {
+    }).then(async (willDelete) => {
       if (willDelete) {
-        swal('Data sukses dihapus!', {
-          icon: 'success',
-        })
+        try {
+          await axios.delete(`http://localhost:5000/guru/delete/${id}`)
+          swal({
+            title: 'Sukses',
+            text: 'Data berhasil dihapus!',
+            icon: 'success',
+          }).then(() => {
+            navigate('/ad/guru/tambah')
+          })
+        } catch (error) {
+          if (error.response) {
+            swal({
+              title: 'Gagal',
+              text: error.response.data.message,
+              icon: 'error',
+            })
+          }
+        }
       }
     })
   }
@@ -40,7 +57,10 @@ const GuruCard = ({ guru, auth }) => {
         >
           <div
             className="head px-3 py-2"
-            style={{ backgroundImage: `url(${defaultBanner})`, minHeight: '350px' }}
+            style={{
+              backgroundImage: `url(${guru.photo !== 'user.png' ? guru.photo : defaultBanner})`,
+              minHeight: '350px',
+            }}
           ></div>
           <div className="over-head"></div>
           <div className="contents px-3 row">
@@ -56,9 +76,9 @@ const GuruCard = ({ guru, auth }) => {
                 <i className="bx bx-book me-1"></i>
                 <p className="mb-0">Pelajaran</p>
               </div>
-              <h4 className="fw-bold">{guru.matpel.nama}</h4>
+              <h4 className="fw-bold">{guru.mataPelajaran.nama}</h4>
             </div>
-            {auth === 'admin' ? (
+            {auth === 1 && (
               <div className="col-12 mb-3 d-flex">
                 <Link
                   to={`/ad/guru/ubah/${guru.id}`}
@@ -74,8 +94,6 @@ const GuruCard = ({ guru, auth }) => {
                   Hapus
                 </button>
               </div>
-            ) : (
-              ''
             )}
           </div>
         </div>

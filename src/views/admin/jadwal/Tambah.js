@@ -1,108 +1,233 @@
 /* eslint-disable prettier/prettier */
 import { CAlert, CForm } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import Select from 'react-select'
-import defaultBanner from '../../../assets/images/banner-default.jpg'
 // DROPZONE
-import { useDropzone } from 'react-dropzone'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { BannerMedium } from 'src/components'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { useSelector } from 'react-redux'
+import axios from 'axios'
+import { toast } from 'react-toastify'
+import swal from 'sweetalert'
 
 const Tambah = () => {
   const [files, setFiles] = useState([])
+  const [preview, setPreview] = useState('')
+  const [gurus, setGurus] = useState([])
+  const [jadwals, setJadwals] = useState([])
+
+  const navigate = useNavigate()
   const [msg, setMsg] = useState('')
+
   const auth = useSelector((state) => state.auth)
 
   useEffect(() => {
     document.title = 'Tambah Jadwal | Aplis'
     AOS.init()
     AOS.refresh()
+    getGurus()
   }, [])
 
   const banner = { title: 'Tambah Jadwal', text: '' }
-  const options = [
-    { value: 1, label: 'Prof. H. Naimin - Matematika' },
-    { value: 2, label: 'H. Sukma Jaya - Bahasa Indonesia' },
-    { value: 3, label: 'Yanah Wulandari - Sastra Arab' },
-  ]
 
-  const { getRootProps, getInputProps, fileRejections, acceptedFiles } = useDropzone({
-    accept: {
-      'image/*': ['.jpeg', '.jpg', '.png'],
-    },
-    multiple: false,
-    maxSize: 1048576,
-    onDrop: (acceptedFiles) => {
-      setFiles(
-        acceptedFiles.map((file) =>
-          Object.assign(file, {
-            preview: URL.createObjectURL(file),
-          }),
-        ),
-      )
-    },
-  })
+  const getGurus = async () => {
+    const response = await axios.get('http://localhost:5000/guru/data')
+    if (auth.role == 1) {
+      setGurus(response.data.map(d => ({
+        "value" : d.id,
+        "label" : `${d.nama} - ${d.mataPelajaran.nama}`
+      })))
+    }
 
-  const acceptedFileItems = acceptedFiles.map((file) => (
-    // eslint-disable-next-line react/jsx-key
-    <p className="mb-0">
-      {file.path} - {file.size} bytes
-    </p>
-  ))
+    if (auth.role === 2) {
+      const response = await axios.get(`http://localhost:5000/guru/user-id/${auth.id}`)
+      formik.setFieldValue('guru', response.data.id)
+    }
 
-  const fileRejectionItems = fileRejections.map(({ file, errors }) => (
-    // eslint-disable-next-line react/jsx-key
-    <p className="mb-0">
-      {file.path} - {file.size} bytes
-      <ul>
-        {errors.map((e) => (
-          // eslint-disable-next-line react/jsx-key
-          <li>{e.message}</li>
-        ))}
-      </ul>
-    </p>
-  ))
+    if (auth.role === 3) {
+      const responseTwo = await axios.get('http://localhost:5000/jadwal/data')
+      setJadwals(responseTwo.data.map(d => ({
+        "value" : d.id,
+        "label" : `${d.ruang} - ${d.guru.nama} - ${d.guru.mataPelajaran.nama}`
+      })))
+    }
+  }
 
-  const images = files.map((file) => (
-    // eslint-disable-next-line react/jsx-key
-    <div className="rounded-15">
-      <div>
-        <img
-          src={file.preview}
-          alt="Image Preview"
-          className="rounded-15 img-thumbnail"
-          style={{ maxHeight: '250px' }}
-        />
-      </div>
-    </div>
-  ))
+  const uploadImage = (e) => {
+    const image = e.target.files[0]
+    if (!image.name.match(/\.(jpg|jpeg|png)$/)) {
+      toast.error('Ekstensi gambar harus .png, .jpg or .jpeg', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      return false
+    }
+    if (image.size >= 1000000) {
+      toast.error("Gambar tidak boleh lebih besar dari 1MB", {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      return false
+    }
+    setFiles(image)
+    setPreview(URL.createObjectURL(image))
+  }
 
-  const previewImg = files.map((file) => file.preview)
-
-  const formik = useFormik({
-    initialValues: {
-      guru: '',
-      ruangan: '',
-      tanggal: '',
-    },
-    validationSchema: Yup.object({
+  let validation = []
+  if (auth.role === 1) {
+    validation = Yup.object({
       guru: Yup.number().required('Guru wajib dipilih!'),
       ruangan: Yup.string()
         .min(4, 'Minimal 4 karakter!')
         .max(70, 'Maksimal 70 karakter!')
         .required('Ruangan wajib diisi!'),
       tanggal: Yup.string().required('Tanggal wajib diisi!'),
-    }),
+    })
+  } else if (auth.role === 2) {
+    validation = Yup.object({
+      ruangan: Yup.string()
+        .min(4, 'Minimal 4 karakter!')
+        .max(70, 'Maksimal 70 karakter!')
+        .required('Ruangan wajib diisi!'),
+      tanggal: Yup.string().required('Tanggal wajib diisi!'),
+    })
+  } else if (auth.role === 3) {
+    validation = Yup.object({
+      jadwal: Yup.number().required('Jadwal wajib dipilih!'),
+    })
+  }
+
+  const formik = useFormik({
+    initialValues: {
+      jadwal: '',
+      guru: '',
+      ruangan: '',
+      tanggal: '',
+    },
+    validationSchema: validation,
     onSubmit: (values) => {
-      // CARI EMAIL YANG SAMA, CARI NIP YANG SAMA
-      console.log(values, files)
+      if (auth.role !== 3) {
+        HandleCreate(values)
+      } else if (auth.role === 3) {
+        HandleDaftar(values)
+      }
     },
   })
+
+  const HandleCreate = async (values) => {
+    try {
+      await axios.post('http://localhost:5000/jadwal/create', {
+        id_guru: values.guru,
+        ruang: values.ruangan,
+        tanggal: values.tanggal,
+        file: files
+      },{
+        headers:{
+          "Content-Type" : "multipart/form-data"
+        }
+      })
+      toast.success('Berhasil membuat jadwal!', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      if (auth.role !== 2) {
+        navigate('/jadwal/main')
+      } else {
+        navigate('/jadwal-saya')
+      }
+    } catch (error) {
+      if (error.response) {
+        setMsg(error.response.data.message)
+        toast.error(error.response.data.message, {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
+      }
+    }
+  }
+
+  const HandleDaftar = async (values) => {
+    let siswaId = 0
+    swal({
+      title: 'Apakah anda yakin?',
+      text: 'Anda akan mendaftar ke jadwal ini',
+      icon: 'info',
+      buttons: true,
+    }).then(async (willDaftar) => {
+      if (willDaftar) {
+        try {
+          await axios.get(`http://localhost:5000/siswa/user-id/${auth.id}`).then((result) => {
+            siswaId = result.data.id
+          })
+
+          await axios
+            .post('http://localhost:5000/jadwal-siswa-siswa/create', {
+              id_siswa: siswaId,
+              id_jadwal: values.jadwal,
+            })
+            .then(() => {
+              toast.success('Berhasil mendaftar jadwal!', {
+                position: 'top-right',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+              })
+
+              navigate('/jadwal-saya')
+            })
+        } catch (error) {
+          if (error.response) {
+            toast.error(error.response.data.message, {
+              position: 'top-right',
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+            })
+          } else {
+            toast.error('Maaf terjadi error pada server', {
+              position: 'top-right',
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+            })
+          }
+        }
+      }
+    })
+  }
 
   return (
     <div>
@@ -142,13 +267,13 @@ const Tambah = () => {
             </CAlert>
           )}
           <CForm className="card-form" onSubmit={formik.handleSubmit}>
-            {auth.account.role === 'admin' ? (
+            {auth.role === 1 && (
               <div className="mb-3 select2">
                 <label>Guru</label>
                 <Select
                   placeholder="Pilih Guru"
                   name="guru"
-                  options={options}
+                  options={gurus}
                   className={formik.errors.guru && formik.touched.guru ? ' is-invalid' : ''}
                   onChange={(e) => formik.setFieldValue('guru', e.value)}
                 />
@@ -156,51 +281,61 @@ const Tambah = () => {
                   <small className="text-danger">{formik.errors.guru}</small>
                 )}
               </div>
-            ) : (
-              ''
             )}
-            <div className="mb-3">
-              <label>Ruangan</label>
-              <input
-                type="text"
-                className={
-                  'form-control rounded-15' +
-                  (formik.errors.ruangan && formik.touched.ruangan ? ' is-invalid' : '')
-                }
-                name="ruangan"
-                placeholder="Nama Ruangan"
-                value={formik.values.ruangan}
-                onChange={formik.handleChange}
-              />
-              {formik.errors.ruangan && formik.touched.ruangan && (
-                <small className="text-danger">{formik.errors.ruangan}</small>
-              )}
-            </div>
-            <label>Banner</label>
-            <div className="mb-3 rounded-15 input-drop" {...getRootProps()}>
-              <input {...getInputProps()} />
-              <p className="mb-0">Seret dan jatuhkan file Anda di sini.</p>
-              <i className="bi bi-card-image"></i>
-            </div>
-            <div>{acceptedFileItems}</div>
-            <div>{fileRejectionItems}</div>
-            <div>{images}</div>
-            <div className="mb-3">
-              <label>Tanggal</label>
-              <input
-                type="datetime-local"
-                className={
-                  'form-control rounded-15' +
-                  (formik.errors.tanggal && formik.touched.tanggal ? ' is-invalid' : '')
-                }
-                name="tanggal"
-                value={formik.values.tanggal}
-                onChange={formik.handleChange}
-              />
-              {formik.errors.tanggal && formik.touched.tanggal && (
-                <small className="text-danger">{formik.errors.tanggal}</small>
-              )}
-            </div>
+            {auth.role !== 3 && (
+              <>
+                <div className="mb-3">
+                  <label className="form-label">Banner</label>
+                  <input className="form-control rounded-15" type="file" name="files" onChange={(e) => uploadImage(e)} />
+                </div>
+                <div className="img-preview">
+                  {preview ? (
+                    <img src={preview} className="img-thumbnail rounded-15" style={{ width: '100%', height: '150px', objectFit: 'cover', backgroundPosition: 'center', backgroundSize: 'cover'}} />
+                  ) : ''}
+                </div>
+                <div className="mb-3">
+                  <label>Ruangan</label>
+                  <input
+                    type="text"
+                    className={'form-control rounded-15' +
+                      (formik.errors.ruangan && formik.touched.ruangan ? ' is-invalid' : '')}
+                    name="ruangan"
+                    placeholder="Nama Ruangan"
+                    value={formik.values.ruangan}
+                    onChange={formik.handleChange} />
+                  {formik.errors.ruangan && formik.touched.ruangan && (
+                    <small className="text-danger">{formik.errors.ruangan}</small>
+                  )}
+                </div>
+                <div className="mb-3">
+                  <label>Tanggal</label>
+                  <input
+                    type="datetime-local"
+                    className={'form-control rounded-15' +
+                      (formik.errors.tanggal && formik.touched.tanggal ? ' is-invalid' : '')}
+                    name="tanggal"
+                    value={formik.values.tanggal}
+                    onChange={formik.handleChange} />
+                  {formik.errors.tanggal && formik.touched.tanggal && (
+                    <small className="text-danger">{formik.errors.tanggal}</small>
+                  )}
+                </div>
+              </>
+            )}
+            {auth.role === 3 && (
+              <div className="mb-3 select2">
+                <label>Jadwal</label>
+                <Select
+                  placeholder="Pilih Jadwal"
+                  name="jadwal"
+                  options={jadwals}
+                  className={formik.errors.jadwal && formik.touched.jadwal ? ' is-invalid' : ''}
+                  onChange={(e) => formik.setFieldValue('jadwal', e.value)} />
+                {formik.errors.jadwal && formik.touched.jadwal && (
+                  <small className="text-danger">{formik.errors.jadwal}</small>
+                )}
+              </div>
+            )}
             <div className="d-flex justify-content-end">
               <Link to="/jadwal/main" className="btn btn-secondary rounded-15 px-3 me-2">
                 Batal
@@ -227,7 +362,7 @@ const Tambah = () => {
           >
             <div
               className="head px-3 py-2"
-              style={{ backgroundImage: `url(${previewImg != '' ? previewImg : defaultBanner})` }}
+              style={{ backgroundColor: 'var(--purple-main)', height: '100px' }}
             ></div>
             <div className="over-head"></div>
             <div className="contents px-3 row">
@@ -263,7 +398,7 @@ const Tambah = () => {
                   <i className="bx bx-book me-1"></i>
                   <p className="mb-0">Pelajaran</p>
                 </div>
-                <h4 className="fw-bold">Matematika</h4>
+                <h4 className="fw-bold">Pelajaran</h4>
               </div>
             </div>
           </div>

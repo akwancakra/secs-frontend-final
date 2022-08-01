@@ -1,24 +1,29 @@
 import { CAlert, CButton, CForm, CFormInput, CPagination, CPaginationItem } from '@coreui/react'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
 import { Link } from 'react-router-dom'
 import { SiswaCard, BannerMedium } from 'src/components'
 import { useSelector } from 'react-redux'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import axios from 'axios'
 
 const Daftar = () => {
+  const [siswas, setSiswas] = useState([])
   const auth = useSelector((state) => state.auth)
+
   useEffect(() => {
     document.title = 'Daftar Siswa | Aplis'
     AOS.init()
     AOS.refresh()
+    getDatas()
   }, [])
 
   const banner = { title: 'Daftar Siswa', text: 'Berikut ini adalah daftar siswa yang ada.' }
-  const siswas = [
-    { id: 1, nama: 'Akwan Cakra', nis: 192010382, agama: 'Islam', jenis_kelamin: 'Laki-laki' },
-    { id: 2, nama: 'Dandy Alyahmin', nis: 192010383, agama: 'Islam', jenis_kelamin: 'Laki-laki' },
-  ]
+
+  const getDatas = async () => {
+    const response = await axios.get('http://localhost:5000/siswa/data')
+    setSiswas(response.data)
+  }
 
   return (
     <div>
@@ -46,11 +51,10 @@ const Daftar = () => {
       </div>
 
       <div className="mb-4 row">
-        {/* {siswas > 0 ? ( */}
         {siswas ? (
           siswas.map((siswa) => (
             // eslint-disable-next-line react/jsx-key
-            <SiswaCard siswa={siswa} auth={auth.account.role} key={siswa.id} />
+            <SiswaCard siswa={siswa} auth={auth.role} key={siswa.id} />
           ))
         ) : (
           <CAlert
@@ -63,26 +67,6 @@ const Daftar = () => {
             Tidak ada data <strong>Siswa</strong>
           </CAlert>
         )}
-      </div>
-
-      <div className="d-flex justify-content-end">
-        <CPagination>
-          <Link to="#" className="page-link cursor-pointer">
-            Previous
-          </Link>
-          <Link to="#" className="page-link cursor-pointer">
-            1
-          </Link>
-          <Link to="#" className="page-link cursor-pointer">
-            2
-          </Link>
-          <Link to="#" className="page-link cursor-pointer">
-            3
-          </Link>
-          <Link to="#" className="page-link cursor-pointer">
-            Next
-          </Link>
-        </CPagination>
       </div>
     </div>
   )

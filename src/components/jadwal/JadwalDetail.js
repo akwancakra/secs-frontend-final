@@ -1,31 +1,97 @@
 /* eslint-disable react/prop-types */
 import React from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 import defaultBanner from 'src/assets/images/banner-default.jpg'
 import swal from 'sweetalert'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const JadwalDetail = ({ jadwal, auth }) => {
+  const navigate = useNavigate()
   AOS.init()
   AOS.refresh()
 
   const handleDaftar = async () => {
-    console.log('anda terdaftarkan')
+    let siswaId = 0
+    swal({
+      title: 'Apakah anda yakin?',
+      text: 'Anda akan mendaftar ke jadwal ini',
+      icon: 'info',
+      buttons: true,
+    }).then(async (willDaftar) => {
+      if (willDaftar) {
+        try {
+          await axios.get(`http://localhost:5000/siswa/user-id/${auth.id}`).then((result) => {
+            siswaId = result.data.id
+          })
+
+          await axios
+            .post('http://localhost:5000/jadwal-siswa-siswa/create', {
+              id_siswa: siswaId,
+              id_jadwal: jadwal.id,
+            })
+            .then(() => {
+              toast.success('Berhasil mendaftar jadwal!', {
+                position: 'top-right',
+                autoClose: 5000,
+                hideProgressBar: false,
+                closeOnClick: true,
+                pauseOnHover: true,
+                draggable: true,
+                progress: undefined,
+              })
+
+              navigate('/jadwal-saya')
+            })
+        } catch (error) {
+          if (error.response) {
+            toast.warning(error.response.data.message, {
+              position: 'top-right',
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+            })
+          } else {
+            toast.error('Maaf terjadi error pada server', {
+              position: 'top-right',
+              autoClose: 5000,
+              hideProgressBar: false,
+              closeOnClick: true,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+            })
+          }
+        }
+      }
+    })
   }
 
   const swalDisplay = async (id) => {
     swal({
       title: 'Apakah anda yakin?',
-      text: 'Data yang anda hapus tidak bisa dipulihkan kembali!' + id,
+      text: 'Data yang anda hapus tidak bisa dipulihkan kembali!',
       icon: 'warning',
       buttons: true,
       dangerMode: true,
-    }).then((willDelete) => {
+    }).then(async (willDelete) => {
       if (willDelete) {
-        swal('Data sukses dihapus!', {
-          icon: 'success',
+        await axios.delete(`http://localhost:5000/jadwal/delete/${id}`)
+        toast.success('Berhasil menghapus jadwal!', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
         })
+        navigate('/jadwal/main')
       }
     })
   }
@@ -39,26 +105,31 @@ const JadwalDetail = ({ jadwal, auth }) => {
     >
       <div
         className="head px-3 d-flex align-items-center justify-content-end"
-        style={{ backgroundImage: `url(${defaultBanner})` }}
+        style={{
+          backgroundImage: `url(${
+            jadwal.photo !== 'banner-default.jpg' ? jadwal.photo : defaultBanner
+          })`,
+        }}
       >
-        {auth === 'admin' && (
-          <>
-            <Link
-              to={`/jadwal/ubah/${jadwal.id}`}
-              className="btn btn-warning fw-bold rounded-15 me-2"
-            >
-              Ubah
-            </Link>
-            <button
-              type="button"
-              className="btn btn-danger fw-bold rounded-15"
-              onClick={() => swalDisplay(jadwal.id)}
-            >
-              Hapus
-            </button>
-          </>
-        )}
-        {auth === 'siswa' && (
+        {auth.role === 1 ||
+          (auth.id === jadwal.guru.userId && (
+            <>
+              <Link
+                to={`/jadwal/ubah/${jadwal.id}`}
+                className="btn btn-warning fw-bold rounded-15 me-2"
+              >
+                Ubah
+              </Link>
+              <button
+                type="button"
+                className="btn btn-danger fw-bold rounded-15"
+                onClick={() => swalDisplay(jadwal.id)}
+              >
+                Hapus
+              </button>
+            </>
+          ))}
+        {auth.role === 3 && (
           <>
             <button
               type="button"
@@ -77,7 +148,7 @@ const JadwalDetail = ({ jadwal, auth }) => {
             <i className="bx bxs-school me-1"></i>
             <p className="mb-0">Ruangan</p>
           </div>
-          <h4 className="fw-bold">{jadwal.ruangan}</h4>
+          <h4 className="fw-bold">{jadwal.ruang}</h4>
         </div>
         <div className="col-12 col-md-6">
           <div className="d-flex align-items-center">
@@ -91,14 +162,14 @@ const JadwalDetail = ({ jadwal, auth }) => {
             <i className="bx bx-chalkboard me-1"></i>
             <p className="mb-0">Pengajar</p>
           </div>
-          <h4 className="fw-bold">{jadwal.dosen.nama}</h4>
+          <h4 className="fw-bold">{jadwal.guru.nama}</h4>
         </div>
         <div className="col-12 col-md-6">
           <div className="d-flex align-items-center">
             <i className="bx bx-book me-1"></i>
             <p className="mb-0">Pelajaran</p>
           </div>
-          <h4 className="fw-bold">{jadwal.dosen.matpel.nama}</h4>
+          <h4 className="fw-bold">{jadwal.guru.mataPelajaran.nama}</h4>
         </div>
       </div>
     </div>

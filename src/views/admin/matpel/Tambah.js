@@ -1,15 +1,21 @@
-import { CAlert, CForm } from '@coreui/react'
+import { CAlert, CForm, CSpinner } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
-import { Link } from 'react-router-dom'
+import { Link, useNavigate } from 'react-router-dom'
 // FORMIK
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import { BannerMedium } from 'src/components'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import swal from 'sweetalert'
+import axios from 'axios'
+import { toast } from 'react-toastify'
 
 const Tambah = () => {
+  const [isLoading, setIsLoading] = useState(false)
   const [msg, setMsg] = useState('')
+
+  const navigate = useNavigate()
 
   useEffect(() => {
     document.title = 'Tambah Mata Pelajaran | Aplis'
@@ -29,9 +35,38 @@ const Tambah = () => {
         .required('Nama Matpel wajib diisi!'),
     }),
     onSubmit: (values) => {
-      console.log(values)
+      HandleCreate(values)
     },
   })
+
+  const HandleCreate = async (values) => {
+    setIsLoading(true)
+    try {
+      await axios.post('http://localhost:5000/mata-pelajaran/create', values)
+      toast.success('Berhasil membuat mata pelajaran!', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+      navigate('/ad/matpel/main')
+    } catch (error) {
+      if (error.response) {
+        setMsg(error.response.data.message)
+        swal({
+          title: 'Error?',
+          text: error.response.data.message,
+          icon: 'warning',
+          buttons: true,
+          dangerMode: true,
+        })
+      }
+      setIsLoading(false)
+    }
+  }
 
   return (
     <div>
@@ -48,6 +83,25 @@ const Tambah = () => {
           Kembali
         </Link>
       </div>
+
+      {isLoading ? (
+        <div
+          className="d-flex justify-content-center align-items-center position-fixed"
+          style={{
+            zIndex: 99,
+            width: '100vw',
+          }}
+        >
+          <div
+            className="rounded-15 d-flex justify-content-center align-items-center"
+            style={{ backgroundColor: 'var(--white)', width: '200px', height: '200px' }}
+          >
+            <CSpinner color="purple" style={{ height: '150px', width: '150px' }} size="lg" />
+          </div>
+        </div>
+      ) : (
+        ''
+      )}
 
       <div className="d-md-flex justify-content-around my-3">
         <div
@@ -67,7 +121,7 @@ const Tambah = () => {
           </div>
           {msg && (
             <CAlert color="danger" className="rounded-15">
-              {msg}
+              <i className="bi bi-exclamation-triangle-fill"></i> {msg}
             </CAlert>
           )}
           <CForm className="card-form" onSubmit={formik.handleSubmit}>
@@ -104,7 +158,7 @@ const Tambah = () => {
 
         <div
           className="jadwal-card jadwal-change preview-wrapper py-2"
-          style={{ minWidth: '400px' }}
+          style={{ minWidth: '250px' }}
           data-aos="fade-up"
           data-aos-easing="ease-in-sine"
           data-aos-duration="600"

@@ -1,4 +1,4 @@
-import { CAlert, CForm, CFormCheck } from '@coreui/react'
+import { CAlert, CForm, CFormCheck, CSpinner } from '@coreui/react'
 import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../../../assets/css/login.css'
@@ -9,6 +9,7 @@ import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { toast } from 'react-toastify'
 import Cookies from 'universal-cookie'
+import axios from 'axios'
 
 const Login = () => {
   const [passwordType, setPasswordType] = useState('password')
@@ -37,6 +38,41 @@ const Login = () => {
     }
   }
 
+  const LoginHandler = async (values) => {
+    try {
+      await axios.post('http://localhost:5000/api/login', values).then((result) => {
+        const data = result.data
+        if (values.remember) {
+          cookies.set('auth', data, { path: '/', maxAge: 2592000000 })
+        } else {
+          cookies.set('auth', data, { path: '/' })
+        }
+
+        dispatch({
+          type: 'set',
+          auth: data,
+        })
+
+        // PINDAH KE HOME
+        toast.success('Berhasil masuk!', {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
+      })
+      navigate('/ad/dashboard')
+    } catch (error) {
+      if (error.response) {
+        setMsg(error.response.data.message)
+      }
+      setIsLoading(false)
+    }
+  }
+
   const formik = useFormik({
     initialValues: {
       email: '',
@@ -50,50 +86,7 @@ const Login = () => {
     }),
     onSubmit: (values) => {
       setIsLoading(true)
-      console.log(values)
-      if (values.remember) {
-        cookies.set(
-          'auth',
-          {
-            auth: {
-              isLogged: true,
-              account: { id: 1, username: 'akwancakra', role: 'admin' },
-            },
-          },
-          { path: '/', maxAge: 2592000000 },
-        )
-      } else {
-        cookies.set(
-          'auth',
-          {
-            auth: {
-              isLogged: true,
-              account: { id: 1, username: 'akwancakra', role: 'admin' },
-            },
-          },
-          { path: '/' },
-        )
-      }
-
-      dispatch({
-        type: 'set',
-        auth: {
-          isLogged: true,
-          account: { id: 1, username: 'akwancakra', role: 'admin' },
-        },
-      })
-
-      toast.success('Berhasil masuk!', {
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      })
-
-      navigate('/ad/dashboard')
+      LoginHandler(values)
     },
   })
 
@@ -175,7 +168,9 @@ const Login = () => {
               <h3 className="mb-4 fw-bold">Senang melihatmu!</h3>
               {msg && (
                 <CAlert color="danger" className="text-start rounded-15">
-                  <span>{msg}</span>
+                  <span>
+                    <i className="bi bi-exclamation-triangle-fill"></i> {msg}
+                  </span>
                 </CAlert>
               )}
               <CForm onSubmit={formik.handleSubmit}>
@@ -237,7 +232,7 @@ const Login = () => {
                   className="btn btn-purple w-100 fw-bold rounded-15 py-2 mb-3"
                   disabled={isLoading}
                 >
-                  Masuk
+                  {isLoading ? <CSpinner color="white" /> : 'Masuk'}
                 </button>
                 <p>
                   Belum punya akun?{' '}

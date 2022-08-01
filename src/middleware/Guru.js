@@ -8,9 +8,9 @@ const Guru = (props) => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (auth.account.role === 'admin') {
+    if (auth.role === 1) {
       navigate('/ad/dashboard')
-    } else if (auth.account.role === 'siswa') {
+    } else if (auth.role === 3) {
       navigate('/sw/dashboard')
     }
   }, []);

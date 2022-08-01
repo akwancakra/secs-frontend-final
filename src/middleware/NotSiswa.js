@@ -8,7 +8,7 @@ const NotSiswa = (props) => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (auth.account.role === 'siswa') {
+    if (auth.role === 3) {
       navigate('/sw/dashboard')
     }
   }, []);

@@ -8,9 +8,9 @@ const Siswa = (props) => {
   const navigate = useNavigate()
 
   useEffect(() => {
-    if (auth.account.role === 'guru') {
+    if (auth.role === 2) {
       navigate('/gr/dashboard')
-    } else if (auth.account.role === 'admin') {
+    } else if (auth.role === 1) {
       navigate('/ad/dashboard')
     }
   }, []);

@@ -2,12 +2,13 @@ import React, { useEffect, useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import '../../../assets/css/login.css'
 import Select from 'react-select'
-import { CForm, CFormFloating } from '@coreui/react'
+import { CAlert, CForm, CFormFloating } from '@coreui/react'
 import { useFormik } from 'formik'
 import * as Yup from 'yup'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
 import { toast } from 'react-toastify'
+import axios from 'axios'
 
 const Register = () => {
   const [passwordType, setPasswordType] = useState('password')
@@ -44,16 +45,49 @@ const Register = () => {
     }
   }
 
+  const registerUpload = async (values) => {
+    try {
+      // return console.log(values)
+      await axios.post('http://localhost:5000/api/register', values)
+
+      toast.success('Anda berhasil mendaftar!', {
+        position: 'top-right',
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
+        pauseOnHover: true,
+        draggable: true,
+        progress: undefined,
+      })
+
+      navigate('/login')
+    } catch (error) {
+      if (error.response) {
+        toast.error(error.response.data.message, {
+          position: 'top-right',
+          autoClose: 5000,
+          hideProgressBar: false,
+          closeOnClick: true,
+          pauseOnHover: true,
+          draggable: true,
+          progress: undefined,
+        })
+        setMsg(error.response.data.message)
+      }
+    }
+  }
+
   const formik = useFormik({
     initialValues: {
       nama: '',
-      nis: '',
+      nomor_induk: '',
       agama: '',
       jenis_kelamin: '',
       username: '',
       email: '',
       password: '',
-      password_confirm: '',
+      confPassword: '',
+      role: 3,
     },
     validationSchema: Yup.object({
       nama: Yup.string()
@@ -61,10 +95,10 @@ const Register = () => {
         .max(30, 'Maksimal 30 karakter!')
         .matches(
           /^(?=.*[a-z])[a-z0-9 ]{4,30}$/,
-          'Hanya alfabet dan angka yang diperbolehkan, tidak hanya angak, dan huruf kecil!',
+          'Hanya alfabet dan angka yang diperbolehkan, tidak hanya angka, dan huruf kecil!',
         )
         .required('Nama wajib diisi!'),
-      nis: Yup.number()
+      nomor_induk: Yup.number()
         .positive('Angka harus bersifat positif!')
         .min(100000, 'NIS harus lebih dari 6 digit!')
         .max(100000000000, 'Maksimal 12 digit!')
@@ -86,21 +120,12 @@ const Register = () => {
         .matches(/[@$!%*#?&]+/, 'Minimal 1 simbol!')
         .matches(/\d+/, 'Minimal 1 angka!')
         .required('Password wajib diisi!'),
-      password_confirm: Yup.string()
+      confPassword: Yup.string()
         .oneOf([Yup.ref('password'), null], 'Password konfirmasi harus sesuai dengan password!')
         .required('Password wajib diisi!'),
     }),
     onSubmit: (values) => {
-      console.log(values)
-      toast.success('Berhasil daftar!', {
-        position: 'top-right',
-        autoClose: 5000,
-        hideProgressBar: false,
-        closeOnClick: true,
-        pauseOnHover: true,
-        draggable: true,
-        progress: undefined,
-      })
+      registerUpload(values)
     },
   })
 
@@ -194,6 +219,11 @@ const Register = () => {
               <h5 className="text-purple fw-bold">Daftar</h5>
               <h3 className="mb-4 fw-bold">Mari bergabung!</h3>
               <CForm onSubmit={formik.handleSubmit}>
+                {msg && (
+                  <CAlert color="danger" className="rounded-15">
+                    <i className="bi bi-exclamation-triangle-fill"></i> {msg}
+                  </CAlert>
+                )}
                 <div className="form-floating mb-3">
                   <input
                     type="text"
@@ -217,18 +247,18 @@ const Register = () => {
                     type="number"
                     className={
                       'form-control rounded-15' +
-                      (formik.errors.nis && formik.touched.nis ? ' is-invalid' : '')
+                      (formik.errors.nomor_induk && formik.touched.nomor_induk ? ' is-invalid' : '')
                     }
                     id="nis"
                     placeholder="NIS"
-                    name="nis"
-                    value={formik.values.nis}
+                    name="nomor_induk"
+                    value={formik.values.nomor_induk}
                     min="1"
                     onChange={formik.handleChange}
                   />
                   <label htmlFor="nis">NIS</label>
-                  {formik.errors.nis && formik.touched.nis && (
-                    <small className="text-danger">{formik.errors.nis}</small>
+                  {formik.errors.nomor_induk && formik.touched.nomor_induk && (
+                    <small className="text-danger">{formik.errors.nomor_induk}</small>
                   )}
                 </div>
                 <CFormFloating className="mb-3 select2 select2-register">
@@ -328,14 +358,14 @@ const Register = () => {
                     type={passwordTypeConf}
                     className={
                       'form-control rounded-15' +
-                      (formik.errors.password_confirm && formik.touched.password_confirm
+                      (formik.errors.confPassword && formik.touched.confPassword
                         ? ' is-invalid'
                         : '')
                     }
                     placeholder="KonfirmasiPassword"
                     id="password"
-                    name="password_confirm"
-                    value={formik.values.password_confirm}
+                    name="confPassword"
+                    value={formik.values.confPassword}
                     onChange={formik.handleChange}
                   />
                   <i
@@ -347,8 +377,8 @@ const Register = () => {
                     onClick={() => passwordChangeConf()}
                   ></i>
                   <label htmlFor="password">Konfirmasi Password</label>
-                  {formik.errors.password_confirm && formik.touched.password_confirm && (
-                    <small className="text-danger">{formik.errors.password_confirm}</small>
+                  {formik.errors.confPassword && formik.touched.confPassword && (
+                    <small className="text-danger">{formik.errors.confPassword}</small>
                   )}
                 </div>
                 <button type="submit" className="btn btn-purple w-100 fw-bold rounded-15 py-2 mb-3">

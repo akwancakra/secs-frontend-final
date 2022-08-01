@@ -24,7 +24,11 @@ const JadwalCard = ({ jadwalData }) => {
         >
           <div
             className="head px-3 py-2"
-            style={{ backgroundImage: `url(${defaultBanner})` }}
+            style={{
+              backgroundImage: `url(${
+                jadwalData.photo !== 'banner-default.jpg' ? jadwalData.photo : defaultBanner
+              })`,
+            }}
           ></div>
           <div className="over-head"></div>
           <div className="contents px-3 row">
@@ -33,7 +37,7 @@ const JadwalCard = ({ jadwalData }) => {
                 <i className="bx bxs-school me-1"></i>
                 <p className="mb-0">Ruangan</p>
               </div>
-              <h4 className="fw-bold">{jadwalData.ruangan}</h4>
+              <h4 className="fw-bold">{jadwalData.ruang}</h4>
             </div>
             <div className="col-6">
               <div className="d-flex align-items-center">
@@ -47,14 +51,14 @@ const JadwalCard = ({ jadwalData }) => {
                 <i className="bx bx-chalkboard me-1"></i>
                 <p className="mb-0">Pengajar</p>
               </div>
-              <h4 className="fw-bold">{jadwalData.dosen.nama}</h4>
+              <h4 className="fw-bold">{jadwalData.guru.nama}</h4>
             </div>
             <div className="col-12">
               <div className="d-flex align-items-center">
                 <i className="bx bx-book me-1"></i>
                 <p className="mb-0">Pelajaran</p>
               </div>
-              <h4 className="fw-bold">{jadwalData.dosen.matpel.nama}</h4>
+              <h4 className="fw-bold">{jadwalData.guru.mataPelajaran.nama}</h4>
             </div>
             <div className="mt-2 pb-3">
               <Link

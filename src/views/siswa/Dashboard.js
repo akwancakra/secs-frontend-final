@@ -10,19 +10,29 @@ import {
   CRow,
 } from '@coreui/react'
 import { CChartBar } from '@coreui/react-chartjs'
-import React, { useEffect } from 'react'
+import React, { useEffect, useState } from 'react'
+import { useSelector } from 'react-redux'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import axios from 'axios'
 
 const Dashboard = () => {
   const jadwalDiambil = [12, 20, 32, 50, 32]
   const jadwalSelesai = [22, 10, 12, 31, 8]
+  const [siswa, setSiswa] = useState([])
+  const auth = useSelector((state) => state.auth)
 
   useEffect(() => {
     document.title = 'Dashboard Siswa | Aplis'
     AOS.init()
     AOS.refresh()
+    getSiswa()
   }, [])
+
+  const getSiswa = async () => {
+    const response = await axios.get(`http://localhost:5000/siswa/user-id/${auth.id}`)
+    setSiswa(response.data)
+  }
 
   return (
     <div>
@@ -33,7 +43,7 @@ const Dashboard = () => {
         data-aos-duration="300"
       >
         <div className="my-4 position-relative" style={{ zIndex: 10 }}>
-          <h2 className="fw-bold mb-0">Halo, Dandy Alyahmin</h2>
+          <h2 className="fw-bold mb-0">Halo, {siswa.nama}</h2>
           <p className="mb-0">Selamat datang kembali!</p>
         </div>
         <div className="position-absolute" style={{ left: 0, bottom: '20px' }}>
@@ -206,13 +216,7 @@ const Dashboard = () => {
       <div data-aos="fade-up" data-aos-easing="ease-in-sine" data-aos-duration="500">
         <CRow>
           <CCol xs={12} md={6}>
-            <CCard
-              className="mb-4 rounded-15 mt-2"
-              style={{ maxHeight: '400px' }}
-              data-aos="fade-up"
-              data-aos-easing="ease-in-sine"
-              data-aos-duration="500"
-            >
+            <CCard className="mb-4 rounded-15 mt-2" style={{ maxHeight: '400px' }}>
               <CCardHeader className="d-flex align-items-center justify-content-between">
                 <p className="mb-0">Siswa mengambil jadwal</p>
                 <CDropdown>
@@ -220,9 +224,9 @@ const Dashboard = () => {
                     Tanggal
                   </CDropdownToggle>
                   <CDropdownMenu>
-                    <CDropdownItem href="#">Action</CDropdownItem>
-                    <CDropdownItem href="#">Another action</CDropdownItem>
-                    <CDropdownItem href="#">Something else here</CDropdownItem>
+                    <CDropdownItem href="#">5 Hari lalu</CDropdownItem>
+                    <CDropdownItem href="#">10 Hari lalu</CDropdownItem>
+                    <CDropdownItem href="#">20 Hari lalu</CDropdownItem>
                   </CDropdownMenu>
                 </CDropdown>
               </CCardHeader>
@@ -244,13 +248,7 @@ const Dashboard = () => {
             </CCard>
           </CCol>
           <CCol xs={12} md={6}>
-            <CCard
-              className="mb-4 rounded-15 mt-2"
-              style={{ maxHeight: '400px' }}
-              data-aos="fade-up"
-              data-aos-easing="ease-in-sine"
-              data-aos-duration="500"
-            >
+            <CCard className="mb-4 rounded-15 mt-2" style={{ maxHeight: '400px' }}>
               <CCardHeader>
                 <p className="mb-0">Jadwal Selesai</p>
               </CCardHeader>

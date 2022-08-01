@@ -5,8 +5,10 @@ import Select from 'react-select'
 import { BannerMedium, JadwalCard } from 'src/components'
 import AOS from 'aos'
 import 'aos/dist/aos.css'
+import axios from 'axios'
 
 const Daftar = () => {
+  const [jadwals, setJadwals] = useState([])
   const [tanggal, setTanggal] = useState('')
   const [guru, setGuru] = useState('')
   const [materi, setMateri] = useState('')
@@ -17,24 +19,16 @@ const Daftar = () => {
     document.title = 'Daftar Jadwal | Aplis'
     AOS.init()
     AOS.refresh()
+    getJadwal()
   }, [])
 
-  const banner = { title: 'Daftar Jadwal', text: 'Berikut ini adalah daftar jadwal yang ada.' }
+  const getJadwal = async () => {
+    await axios.get('http://localhost:5000/jadwal/data').then((result) => {
+      setJadwals(result.data)
+    })
+  }
 
-  const jadwals = [
-    {
-      id: 1,
-      ruangan: 'RPL 1',
-      tanggal: '2022-07-21 00:00:00.000',
-      dosen: { nama: 'Prof. H. Naimin', matpel: { id: 1, nama: 'Matematika' } },
-    },
-    {
-      id: 2,
-      ruangan: 'TKJ 2',
-      tanggal: '2022-07-28 00:00:00.000',
-      dosen: { nama: 'Dr. Hasan Basri', matpel: { id: 4, nama: 'Dasar Desain Grafis' } },
-    },
-  ]
+  const banner = { title: 'Daftar Jadwal', text: 'Berikut ini adalah daftar jadwal yang ada.' }
 
   const jadwalData = [
     { value: 1, label: 'Matematika - 20 Juli 2022' },
@@ -128,7 +122,7 @@ const Daftar = () => {
       </CForm>
 
       <div className="mb-4 row">
-        {jadwals ? (
+        {jadwals.length > 0 ? (
           jadwals.map((jadwal) => (
             // eslint-disable-next-line react/jsx-key
             <JadwalCard jadwalData={jadwal} key={jadwal.id} />
@@ -138,26 +132,6 @@ const Daftar = () => {
             Tidak ada data <strong>Jadwal</strong>
           </CAlert>
         )}
-      </div>
-
-      <div className="d-flex justify-content-end">
-        <CPagination>
-          <Link to="#" className="page-link cursor-pointer">
-            Previous
-          </Link>
-          <Link to="#" className="page-link cursor-pointer">
-            1
-          </Link>
-          <Link to="#" className="page-link cursor-pointer">
-            2
-          </Link>
-          <Link to="#" className="page-link cursor-pointer">
-            3
-          </Link>
-          <Link to="#" className="page-link cursor-pointer">
-            Next
-          </Link>
-        </CPagination>
       </div>
     </div>
   )
