@@ -7,12 +7,11 @@ Anggota
   <li>Dandy Darmawan Alyahmin (BE)</li>
 </ul>
 
-## Apa ini?
+## Aplikasi apa ini?
 
 Ini adalah modul frontend yang dibuat untuk secs frontend final, yang mana ini menggunakan template admin @CoreUI.
-Dibuat dengan menggunakan :
-
 Aplikasi ini membutuhkan database dan backend agar dapat dijalankan tanpa adanya error.
+Dibuat dengan menggunakan :
 
 <ul>
   <li>React Js</li>
